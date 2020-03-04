@@ -22,5 +22,9 @@ location /
 
 ## Apache Rewrite Rules
 ```sh
-RewriteRule ^(.*)$ /index.php?url=$1 [L,QSA]
+RewriteEngine On
+RewriteBase /
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /public/ [L]
 ```
