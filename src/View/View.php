@@ -153,6 +153,7 @@ class View
     {
         // Load the required partials for this object to work..
         $this->setPartial('Content');
+        $this->setPartial('HtmlTags');
     }
 
     /**

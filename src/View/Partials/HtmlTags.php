@@ -1,27 +1,31 @@
 <?php
 
-// @TODO Er moet een URLBUILDER komen die adhv URL of array URL kan opbouwen.
-
-namespace \FryskeOranjekoeke\View\Partials;
+namespace FryskeOranjekoeke\View\Partials;
 
 use \FryskeOranjekoeke\View\View as View;
 
 class HtmlTags extends Partial
 {
     protected $templates = [
-        'css' => '<link href="$url" ref="stylesheet" type="text/css">'
+        'css'    => '<link href="$url" rel="stylesheet" type="text/css">',
+        'script' => '<script src="$url" type="text/javascript"></script>'
     ];
-
 
     public function getTemplate(string $name): ?string
     {
         return ($this->templates[$name] ?? null);
     }
 
-    public function parseTemplate(string $template, string $name): string
+    public function getUrl(string $type, string $name): string
+    {
+        $location = (strpos($name, 'vendor') !== false) ? ($name . '.' . $type) : ($type . DS . $name . '.' . $type);
+        return (ASSETS . $location);
+    }
+
+    public function parseTemplate(string $template, string $url): string
     {
         return strtr($this->getTemplate($template), [
-            '$url' => $name
+            '$url' => $url
         ]);
     }
 
@@ -30,15 +34,31 @@ class HtmlTags extends Partial
         parent::__construct($view);
     }
 
-    public function css(string $url, bool $addToHead = true)
+    public function css($name)
     {
-        $tag = $this->parseTemplate('css', $url);
-        if (!$addToHead) {
-            return $tag;
+        if (is_string($name)) {
+            $name = [$name];
         }
 
-        // Add tag to head.
-        if (strpos($this->view->) !== false) {
+        $output = '';
+        foreach ($name as $file) {
+            $url = $this->getUrl('css', $file);
+            $output .= $this->parseTemplate('css', $url);
         }
+        return $output;
+    }
+
+    public function script($name)
+    {
+        if (is_string($name)) {
+            $name = [$name];
+        }
+
+        $output = '';
+        foreach ($name as $file) {
+            $url = $this->getUrl('js', $file);
+            $output .= $this->parseTemplate('script', $url);
+        }
+        return $output;
     }
 }
