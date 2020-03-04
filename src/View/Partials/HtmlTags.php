@@ -16,9 +16,10 @@ class HtmlTags extends Partial
         return ($this->templates[$name] ?? null);
     }
 
-    public function getUrl(string $type, string $name): string
+    public function getUrl(string $type, string $name, bool $addSuffix = true): string
     {
-        $location = (strpos($name, 'vendor') !== false) ? ($name . '.' . $type) : ($type . DS . $name . '.' . $type);
+        $suffix = ($addSuffix) ? ('.' . $type) : '';
+        $location = (strpos($name, 'vendor') !== false) ? ($name . $suffix) : ($type . DS . $name . $suffix);
         return (ASSETS . $location);
     }
 
