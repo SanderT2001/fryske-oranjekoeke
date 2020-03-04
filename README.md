@@ -22,5 +22,9 @@ location /
 
 ## Apache Rewrite Rules
 ```sh
-RewriteRule ^(.*)$ /index.php?url=$1 [L,QSA]
+<IfModule mod_rewrite.c>
+ RewriteEngine on
+ RewriteBase /fryske-koekn/fryske-oranjekoeke/app-skeleton/public/
+ RewriteRule ^$ /fryske-koekn/fryske-oranjekoeke/app-skeleton/public/index.php [L]
+</IfModule>
 ```
