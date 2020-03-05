@@ -49,6 +49,7 @@ class Table extends PDOConnection
     {
         require_once (ENTITIES . DS . $entity . '.php');
 
+        // @TODO Er kan beter gebruik worden gemaakt van strtr() om variable te parsen;
         $entityPath = '\App\Models\Entities\{{entity}}';
         $class = str_replace('{{entity}}', $entity, $entityPath);
         $this->entity = new $class();

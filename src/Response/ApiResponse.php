@@ -5,6 +5,7 @@ namespace FryskeOranjekoeke\Response;
 /**
  * Returns a JSON API Response.
  *
+ * @TODO Moet netter
  * @author Sander Tuinstra <sandert2001@hotmail.com>
  *
  * @return application/json Returns an JSON-Object containing the data to output.

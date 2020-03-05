@@ -4,6 +4,7 @@ namespace FryskeOranjekoeke\View\Partials;
 
 use \FryskeOranjekoeke\View\View as View;
 
+// @TODO Docs
 class HtmlTags extends Partial
 {
     protected $templates = [

@@ -134,6 +134,7 @@ class View
             throw new \InvalidArgumentException('Partial File not found. Given Partial is: ' . $name);
         }
 
+        // @TODO Er kan beter gebruik worden gemaakt van strtr() om variable te parsen;
         $partial = str_replace('{{partial}}', $name, '\FryskeOranjekoeke\View\Partials\{{partial}}');
         $this->partials[$name] = new $partial($this);
     }
