@@ -120,29 +120,30 @@ class Table extends PDOConnection
 
     public function select(array $conditions): array
     {
-        // Add relationships
-/**
-        if ($this->getRelationships() !== []) {
-            $relationshipConditions = [];
-            foreach ($this->getRelationships() as $tableName => $relConditions) {
-                require_once (MODELS . DS . $tableName . '.php');
-
-                // @TODO Er kan beter gebruik worden gemaakt van strtr() om variable te parsen;
-                $tablePath = '\App\Models\{{table}}';
-                $class = str_replace('{{table}}', $tableName, $tablePath);
-                $class = new $class();
-
-                $type = ($relConditions['type'] ?? 'inner');
-                $output = [];
-                foreach (($relConditions['ON'] ?? []) as $left => $right) {
-                    $output[$this->getTableName() . '.' . $left] = ($class->getTableName() . '.' . $right);
-                }
-                $relationshipConditions = array_merge($relationshipConditions, $output);
-            }
-            $conditions[strtoupper($relConditions['type']) . ' JOIN'] = $relationshipConditions;
+        // No relations present to add? Then return early.
+        if ($this->getRelationships() === []) {
+            return parent::select($conditions);
         }
-*/
 
+        // Add relationships
+        $relationshipConditions = [];
+        foreach ($this->getRelationships() as $tableName => $relSettings) {
+            $relationshipCondition = [
+                'type'           => $relSettings['type'],
+                'table'          => null,
+                'fieldRelations' => [
+                ]
+            ];
+
+            // Build field relations.
+            $destTable = get_app_class('model', $tableName);
+            $relationshipCondition['table'] = $destTable->getTableName();
+            foreach ($relSettings['ON'] as $srcField => $destField) {
+                $relationshipCondition['fieldRelations'][($this->getTableName() . '.' . $srcField)] = ($destTable->getTableName() . '.' . $destField);
+            }
+            array_push($relationshipConditions, $relationshipCondition);
+        }
+        $conditions['JOIN'] = $relationshipConditions;
         return parent::select($conditions);
     }
 

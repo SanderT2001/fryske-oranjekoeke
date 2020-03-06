@@ -107,7 +107,7 @@ class ApiResponse
             return $this->responseData;
         }
         $reflection = new \ReflectionClass($firstElement);
-        $shortNamePlural = ($reflection->getShortName() . 's');
+        $shortNamePlural = ($reflection->getShortName());
         return [$shortNamePlural => $this->responseData];
     }
 
