@@ -41,7 +41,7 @@ class Controller
     {
         $this->request = $request;
 
-        if (APP_CONFIG['runtime']['is_api'] === true) {
+        if ((bool) APP_CONFIG['runtime']['is_api'] === true) {
             return;
         }
 
