@@ -3,6 +3,7 @@ The simple MVC PHP Framework.
 
 ## Authors
 * Sander Tuinstra - Developer - [SanderT2001](https://github.com/SanderT2001)
+* Yvar Nanlohij   - Slave     - [Yvar-School](https://github.com/Yvar-School)
 
 ## Build with
 * PHP 7.3.11

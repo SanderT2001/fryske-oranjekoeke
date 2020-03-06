@@ -79,6 +79,7 @@ class Controller
     {
         require_once (MODELS . DS . $name . '.php');
 
+        // @TODO Er kan beter gebruik worden gemaakt van strtr() om variable te parsen;
         $class = str_replace('{{model}}', $name, '\App\Models\{{model}}');
         $this->{$name} = new $class();
     }
