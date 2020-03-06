@@ -3,6 +3,7 @@
 namespace FryskeOranjekoeke\Core;
 
 require_once 'ConvenienceFunctions.php';
+require_once 'MvcFunctions.php';
 require_once FRYSKE_ORANJEKOEKE . DS . 'autoload.php';
 
 /**
@@ -77,14 +78,9 @@ class BaseApplication
      */
     private function loadController(string $name): Controller
     {
-        $name = ($name . 'Controller');
-        require_once (CONTROLLERS . DS . $name . '.php');
-
-        $class = str_replace('{{controller}}', $name, '\App\Controller\{{controller}}');
-        $controller = new $class();
+        $controller = get_app_class('controller', $name);
         $controller->setRequest($this->getRequest());
         $this->setController($controller);
-
         return $controller;
     }
 }
