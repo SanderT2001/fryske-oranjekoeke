@@ -65,8 +65,10 @@ class BaseApplication
         // Call the Requested Action
         call_user_func_array([$this->getController(), $this->request->getDestination()['action']], $this->request->getDestination()['arguments'] ?? []);
 
-        // Render the view
-        $this->getController()->getView()->render();
+        if (APP_CONFIG['runtime']['is_api'] === false) {
+            // Render the view
+            $this->getController()->getView()->render();
+        }
     }
 
     /**

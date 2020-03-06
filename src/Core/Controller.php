@@ -41,6 +41,10 @@ class Controller
     {
         $this->request = $request;
 
+        if (APP_CONFIG['runtime']['is_api'] === true) {
+            return;
+        }
+
         $view = new View();
         $view->setLayout('default');
         $view->setView($request->getDestination()['controller'], $request->getDestination()['action'], false);
