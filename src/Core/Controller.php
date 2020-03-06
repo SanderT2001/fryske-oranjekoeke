@@ -41,6 +41,10 @@ class Controller
     {
         $this->request = $request;
 
+        if ((bool) APP_CONFIG['runtime']['is_api'] === true) {
+            return;
+        }
+
         $view = new View();
         $view->setLayout('default');
         $view->setView($request->getDestination()['controller'], $request->getDestination()['action'], false);
@@ -77,11 +81,7 @@ class Controller
      */
     public function loadModel(string $name): void
     {
-        require_once (MODELS . DS . $name . '.php');
-
-        // @TODO Er kan beter gebruik worden gemaakt van strtr() om variable te parsen;
-        $class = str_replace('{{model}}', $name, '\App\Models\{{model}}');
-        $this->{$name} = new $class();
+        $this->{$name} = get_app_class('model', $name);
     }
 
     /**

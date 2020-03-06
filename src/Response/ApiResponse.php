@@ -102,7 +102,7 @@ class ApiResponse
 
     public function getResponseData(): array
     {
-        $firstElement = $this->responseData[key($this->responseData)];
+        $firstElement = ($this->responseData[key($this->responseData)] ?? null);
         if (!is_object($firstElement)) {
             return $this->responseData;
         }

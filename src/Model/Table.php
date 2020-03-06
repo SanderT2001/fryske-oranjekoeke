@@ -19,11 +19,23 @@ class Table extends PDOConnection
     protected $table = null;
 
     /**
+     * @var array
+     */
+    protected $magicSelectConditions = [
+    ];
+
+    /**
      * The Entity connected with the Table.
      *
      * @var Entity
      */
-    protected $entity = null;
+    private $entity = null;
+
+    /**
+     * @var array
+     */
+    protected $relationships = [
+    ];
 
     public function getTable(): ?string
     {
@@ -33,11 +45,15 @@ class Table extends PDOConnection
     public function setTable(string $name): void
     {
         $this->table = $name;
-        if ($this->getEntity() === null) {
-            // Plural to Singular.
-            $entity = rtrim($name, 's');
-            $this->setEntity(ucfirst($entity));
-        }
+
+        // Plural to Singular.
+        $entity = rtrim($name, 's');
+        $this->setEntity(ucfirst($entity));
+    }
+
+    public function getMagicSelectConditions(): array
+    {
+        return $this->magicSelectConditions;
     }
 
     public function getEntity(): ?Entity
@@ -47,13 +63,13 @@ class Table extends PDOConnection
 
     public function setEntity(string $entity): void
     {
-        require_once (ENTITIES . DS . $entity . '.php');
+        $this->entity = get_app_class('entity', $entity);
+        $this->setEntityPath(get_app_class('entity', $entity, true));
+    }
 
-        // @TODO Er kan beter gebruik worden gemaakt van strtr() om variable te parsen;
-        $entityPath = '\App\Models\Entities\{{entity}}';
-        $class = str_replace('{{entity}}', $entity, $entityPath);
-        $this->entity = new $class();
-        $this->setEntityPath($class);
+    public function getRelationships(): array
+    {
+        return $this->relationships;
     }
 
     public function __construct()
@@ -68,7 +84,7 @@ class Table extends PDOConnection
         );
 
         // Set Entity if not given already.
-        if ($this->getTable() !== null && $this->getEntity() === null) {
+        if ($this->getTable() !== null) {
             $this->setTable($this->getTable());
         }
     }
@@ -82,12 +98,13 @@ class Table extends PDOConnection
      */
     public function get(int $id): ?Entity
     {
-        $row = $this->select([
+        $conditions = [
             'where' => [
-                'id' => $id,
-                'active' => 1
+                'id' => $id
             ]
-        ]);
+        ];
+        $conditions = array_merge($conditions, $this->getMagicSelectConditions());
+        $row = $this->select($conditions);
         return ($row[key($row)] ?? null);
     }
 
@@ -98,11 +115,35 @@ class Table extends PDOConnection
      */
     public function getAll(): array
     {
-        return $this->select([
-            'where' => [
-                'active' => 1
-            ]
-        ]);
+        return $this->select($this->getMagicSelectConditions());
+    }
+
+    public function select(array $conditions): array
+    {
+        // Add relationships
+/**
+        if ($this->getRelationships() !== []) {
+            $relationshipConditions = [];
+            foreach ($this->getRelationships() as $tableName => $relConditions) {
+                require_once (MODELS . DS . $tableName . '.php');
+
+                // @TODO Er kan beter gebruik worden gemaakt van strtr() om variable te parsen;
+                $tablePath = '\App\Models\{{table}}';
+                $class = str_replace('{{table}}', $tableName, $tablePath);
+                $class = new $class();
+
+                $type = ($relConditions['type'] ?? 'inner');
+                $output = [];
+                foreach (($relConditions['ON'] ?? []) as $left => $right) {
+                    $output[$this->getTableName() . '.' . $left] = ($class->getTableName() . '.' . $right);
+                }
+                $relationshipConditions = array_merge($relationshipConditions, $output);
+            }
+            $conditions[strtoupper($relConditions['type']) . ' JOIN'] = $relationshipConditions;
+        }
+*/
+
+        return parent::select($conditions);
     }
 
     public function add(Entity $entity): bool

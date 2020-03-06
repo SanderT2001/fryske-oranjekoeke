@@ -3,6 +3,7 @@
 namespace FryskeOranjekoeke\Core;
 
 require_once 'ConvenienceFunctions.php';
+require_once 'MvcFunctions.php';
 require_once FRYSKE_ORANJEKOEKE . DS . 'autoload.php';
 
 /**
@@ -64,8 +65,10 @@ class BaseApplication
         // Call the Requested Action
         call_user_func_array([$this->getController(), $this->request->getDestination()['action']], $this->request->getDestination()['arguments'] ?? []);
 
-        // Render the view
-        $this->getController()->getView()->render();
+        if ((bool) APP_CONFIG['runtime']['is_api'] === false) {
+            // Render the view
+            $this->getController()->getView()->render();
+        }
     }
 
     /**
@@ -77,14 +80,9 @@ class BaseApplication
      */
     private function loadController(string $name): Controller
     {
-        $name = ($name . 'Controller');
-        require_once (CONTROLLERS . DS . $name . '.php');
-
-        $class = str_replace('{{controller}}', $name, '\App\Controller\{{controller}}');
-        $controller = new $class();
+        $controller = get_app_class('controller', $name);
         $controller->setRequest($this->getRequest());
         $this->setController($controller);
-
         return $controller;
     }
 }

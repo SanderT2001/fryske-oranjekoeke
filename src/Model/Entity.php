@@ -10,12 +10,9 @@ namespace FryskeOranjekoeke\Model;
 class Entity
 {
     public $required = [
-        'active'
     ];
 
     public $id;
-
-    public $active;
 
     public function getRequired(): array
     {
@@ -30,21 +27,6 @@ class Entity
     public function setId(int $id): void
     {
         $this->id = $id;
-    }
-
-    public function getActive(): ?bool
-    {
-        return $this->active;
-    }
-
-    public function setActive(bool $active): void
-    {
-        $this->active = $active;
-    }
-
-    public function __construct()
-    {
-        $this->setActive(true);
     }
 
     public function patch(\stdClass $data): bool

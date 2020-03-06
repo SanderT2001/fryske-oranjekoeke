@@ -19,7 +19,6 @@ define('CONTROLLERS', SRC  . '/Controllers');
 define('MODELS',      SRC  . '/Models');
 define('ENTITIES',    SRC  . '/Models/Entities');
 define('VIEWS',       SRC  . '/Views');
-define('APP',         CONTROLLERS);
 
 // Fryske Orangjekoeke
 define('FRYSKE_ORANJEKOEKE', ROOT . '/vendor/sandert2001/fryske-oranjekoeke/src');
