@@ -87,6 +87,10 @@ class Table extends PDOConnection
         if ($this->getTable() !== null) {
             $this->setTable($this->getTable());
         }
+
+        foreach ($this->getRelationships() as $tableName => $relSettings) {
+            $this->{$tableName} = get_app_class('model', $tableName);
+        }
     }
 
     /**
@@ -120,30 +124,27 @@ class Table extends PDOConnection
 
     public function select(array $conditions): array
     {
-        // Add relationships
-/**
-        if ($this->getRelationships() !== []) {
-            $relationshipConditions = [];
-            foreach ($this->getRelationships() as $tableName => $relConditions) {
-                require_once (MODELS . DS . $tableName . '.php');
+        $results = parent::select($conditions);
 
-                // @TODO Er kan beter gebruik worden gemaakt van strtr() om variable te parsen;
-                $tablePath = '\App\Models\{{table}}';
-                $class = str_replace('{{table}}', $tableName, $tablePath);
-                $class = new $class();
-
-                $type = ($relConditions['type'] ?? 'inner');
-                $output = [];
-                foreach (($relConditions['ON'] ?? []) as $left => $right) {
-                    $output[$this->getTableName() . '.' . $left] = ($class->getTableName() . '.' . $right);
-                }
-                $relationshipConditions = array_merge($relationshipConditions, $output);
-            }
-            $conditions[strtoupper($relConditions['type']) . ' JOIN'] = $relationshipConditions;
+        // No relations present to add? Then return early.
+        if ($this->getRelationships() === []) {
+            return $results;
         }
-*/
 
-        return parent::select($conditions);
+        foreach ($results as $id => $data) {
+            foreach ($this->getRelationships() as $tableName => $relSettings) {
+                $selectConditions = $this->{$tableName}->getMagicSelectConditions();
+                if (isset($selectConditions['WHERE'])) {
+                    $selectConditions['WHERE'] = array_merge($selectConditions['WHERE'], [
+                        'id' => $data->{$relSettings['relationship']['foreignKey']}
+                    ]);
+                }
+
+                $relationResults = $this->{$tableName}->select($selectConditions);
+                $results[$id]->{$tableName} = $relationResults;
+            }
+        }
+        return $results;
     }
 
     public function add(Entity $entity): bool

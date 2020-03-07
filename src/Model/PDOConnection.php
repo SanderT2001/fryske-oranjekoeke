@@ -114,38 +114,65 @@ class PDOConnection
      */
     protected function select(array $conditions): array
     {
-        $query = 'SELECT $fields FROM $table';
-        $fields = '*';
+        $query         = 'SELECT $fields FROM $table $relations $conditions';
+        $fields        = '*';
+        $relations     = '';
+        $conditionsStr = '';
         foreach ($conditions as $name => $subconditions) {
             if (empty($subconditions)) {
                 continue;
             }
 
-            if ($name === 'fields') {
-                $fields = '';
-                $fieldsCount = 0;
-                foreach ($subconditions as $field) {
-                    if ($fieldsCount > 0) {
-                        $fields .= ',';
+            switch ($name) {
+                case 'fields':
+                    $fields = '';
+                    $fieldsCount = 0;
+                    foreach ($subconditions as $field) {
+                        if ($fieldsCount > 0) {
+                            $fields .= ',';
+                        }
+                        $fields .= $field;
+                        $fieldsCount++;
                     }
-                    $fields .= $field;
-                }
-                continue;
-            }
+                    continue;
+                    break;
 
-            $query .= (' ' . $name);
-            $subconditionsCount = 0;
-            foreach ($subconditions as $field => $value) {
-                if ($subconditionsCount > 0) {
-                    $query .= ' AND';
-                }
-                $query .= (' ' . $field . '=' . '"' . $value . '"');
-                $subconditionsCount++;
+                case 'JOIN':
+                    $joinCount = 0;
+                    foreach ($subconditions as $joinConditions) {
+                        if ($joinCount > 0) {
+                            $relations .= (' ' . 'AND' . ' ');
+                        }
+                        $relations .= ($joinConditions['type'] . ' ' . 'JOIN');
+                        $relations .= (' ' . $joinConditions['table']);
+                        $relations .= (' ' . 'ON');
+                        $relations .= ' ';
+
+                        foreach ($joinConditions['fieldRelations'] as $srcField => $destField) {
+                            $relations .= ($srcField . '=' . $destField);
+                        }
+                        $joinCount++;
+                    }
+                    continue;
+                    break;
+
+                default:
+                    $conditionsStr = (' ' . $name);
+                    $subconditionsCount = 0;
+                    foreach ($subconditions as $field => $value) {
+                        if ($subconditionsCount > 0) {
+                            $conditionsStr .= ' AND';
+                        }
+                        $conditionsStr .= (' ' . $field . '=' . '"' . $value . '"');
+                        $subconditionsCount++;
+                    }
             }
         }
         $query = strtr($query, [
-            '$table'  => $this->getTableName(),
-            '$fields' => $fields
+            '$table'      => $this->getTableName(),
+            '$fields'     => $fields,
+            '$relations'  => $relations,
+            '$conditions' => $conditionsStr
         ]);
 
         $rows = $this->getConnection()
