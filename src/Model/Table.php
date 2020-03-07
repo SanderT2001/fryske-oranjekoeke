@@ -87,6 +87,10 @@ class Table extends PDOConnection
         if ($this->getTable() !== null) {
             $this->setTable($this->getTable());
         }
+
+        foreach ($this->getRelationships() as $tableName => $relSettings) {
+            $this->{$tableName} = get_app_class('model', $tableName);
+        }
     }
 
     /**
@@ -120,31 +124,27 @@ class Table extends PDOConnection
 
     public function select(array $conditions): array
     {
+        $results = parent::select($conditions);
+
         // No relations present to add? Then return early.
         if ($this->getRelationships() === []) {
-            return parent::select($conditions);
+            return $results;
         }
 
-        // Add relationships
-        $relationshipConditions = [];
-        foreach ($this->getRelationships() as $tableName => $relSettings) {
-            $relationshipCondition = [
-                'type'           => $relSettings['type'],
-                'table'          => null,
-                'fieldRelations' => [
-                ]
-            ];
+        foreach ($results as $id => $data) {
+            foreach ($this->getRelationships() as $tableName => $relSettings) {
+                $selectConditions = $this->{$tableName}->getMagicSelectConditions();
+                if (isset($selectConditions)) {
+                    $selectConditions['WHERE'] = array_merge($selectConditions['WHERE'], [
+                        'id' => $data->{$relSettings['relationship']['foreignKey']}
+                    ]);
+                }
 
-            // Build field relations.
-            $destTable = get_app_class('model', $tableName);
-            $relationshipCondition['table'] = $destTable->getTableName();
-            foreach ($relSettings['ON'] as $srcField => $destField) {
-                $relationshipCondition['fieldRelations'][($this->getTableName() . '.' . $srcField)] = ($destTable->getTableName() . '.' . $destField);
+                $relationResults = $this->{$tableName}->select($selectConditions);
+                $results[$id]->{$tableName} = $relationResults;
             }
-            array_push($relationshipConditions, $relationshipCondition);
         }
-        $conditions['JOIN'] = $relationshipConditions;
-        return parent::select($conditions);
+        return $results;
     }
 
     public function add(Entity $entity): bool
