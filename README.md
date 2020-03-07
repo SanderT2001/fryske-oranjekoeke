@@ -6,7 +6,9 @@ The simple MVC PHP Framework.
 * Yvar Nanlohij   - Slave     - [Yvar-School](https://github.com/Yvar-School)
 
 ## Build with
+* NGINX 1.16
 * PHP 7.3.11
+* MySQL 8.0
 
 ## Start using
 * CD into your project directory and make sure the following subdirectories are present.
