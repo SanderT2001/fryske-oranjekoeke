@@ -134,7 +134,7 @@ class Table extends PDOConnection
         foreach ($results as $id => $data) {
             foreach ($this->getRelationships() as $tableName => $relSettings) {
                 $selectConditions = $this->{$tableName}->getMagicSelectConditions();
-                if (isset($selectConditions)) {
+                if (isset($selectConditions['WHERE'])) {
                     $selectConditions['WHERE'] = array_merge($selectConditions['WHERE'], [
                         'id' => $data->{$relSettings['relationship']['foreignKey']}
                     ]);
