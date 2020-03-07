@@ -28,7 +28,8 @@ $ ./create-project.sh
 * Now your App should be created and you are ready to start using _Fryske Oranjekoeke_. If you are using _NGINX_, make sure you have the correct Rewrite Rules set (noted below).If you are using _APACHE_, the `.htaccess` file is already present in: `yourproject/public/.htaccess`.
 * To make sure _Fryske Oranjekoeke_ will be loading everything it needs, tell _Fryske Oranjekoeke_ if this App is an API or just a normal MVC App in `yourproject/config/config.ini` under `runtime` -> `is_api`.
 
-## NGINX Rewrite Rules
+## Webserver Rewrite Rules
+### NGINX Rewrite Rules
 ```sh
 location /
 {
@@ -41,7 +42,7 @@ location /
 }
 ```
 
-## Apache Rewrite Rules
+### Apache Rewrite Rules
 ```sh
 RewriteEngine On
 RewriteBase /
