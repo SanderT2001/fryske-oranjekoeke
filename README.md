@@ -4,6 +4,7 @@ The simple MVC PHP Framework.
 ## Authors
 * Sander Tuinstra - Developer - [SanderT2001](https://github.com/SanderT2001)
 * Yvar Nanlohij   - Slave     - [Yvar-School](https://github.com/Yvar-School)
+* Justin Rijsdijk - Developer - [justinrijsdijk](https://github.com/justinrijsdijk)
 
 ## Build with
 * NGINX 1.16
