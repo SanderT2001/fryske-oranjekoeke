@@ -103,11 +103,15 @@ class Table extends PDOConnection
     public function get(int $id): ?Entity
     {
         $conditions = [
-            'where' => [
+            'WHERE' => [
                 'id' => $id
             ]
         ];
-        $conditions = array_merge($conditions, $this->getMagicSelectConditions());
+        foreach ($this->getMagicSelectConditions() as $rule => $value) {
+            if (isset($conditions[$rule])) {
+                $conditions[$rule] = array_merge($conditions[$rule], $value);
+            }
+        }
         $row = $this->select($conditions);
         return ($row[key($row)] ?? null);
     }
