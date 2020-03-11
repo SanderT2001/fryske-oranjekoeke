@@ -103,7 +103,7 @@ class PDOConnection
         if ($prefix !== null) {
             $this->setTablePrefix($prefix);
         }
-    }
+    } 
 
     /**
      * Builds a SELECT query with the conditions from @param conditions.
