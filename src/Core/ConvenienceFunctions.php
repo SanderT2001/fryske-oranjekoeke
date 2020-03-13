@@ -121,3 +121,65 @@ if (!function_exists('get_string_between')) {
         return substr($string, $ini, $len);
     }
 }
+
+if (!function_exists('strip_specific_tags')) {
+    /**
+     * Strip specific HTML Tags from a HTML String.
+     *
+     * @link https://www.sitepoint.com/community/t/how-do-i-strip-only-certain-html-tags/1612
+     *
+     * @param string $html        The HTML to strip the Tags from.
+     * @param array  $tagsToStrip Containing the HTML Tags that should be stripped from the string.
+     *
+     * @return string The stripped HTML.
+     */
+    function strip_specific_tags(string $html, array $tagsToStrip): string
+    {
+        foreach ($tagsToStrip as $tag)
+        {
+            $tagHtml = '/<\\/?$tag(.|\\s)*?>/';
+            $tagHtml = strtr($tagHtml, [
+                '$tag' => $tag
+            ]);
+            $html = preg_replace($tagHtml, '', $html);
+        }
+        return $html;
+    }
+}
+
+if (!function_exists('trim_multiple')) {
+    /**
+     * Trims Multiple characters off a string.
+     *
+     * @param string $input       Containing the string to strip the characters off of.
+     * @param array  $charsToTrim Containing the characters to trim off the @param $input.
+     * @param string $trimMode    Telling from which side to trim, allowed modes are:
+     *                              `l` => left trim
+     *                              `r` => right trim
+     *
+     * @throws InvalidArgumentException When the given @param $trimMode is invalid.
+     *
+     * @return string Containing the trimmed string.
+     */
+    function trim_multiple(string $input, array $charsToTrim, string $trimMode = 'l'): string
+    {
+        // Check if allowed trim mode.
+        if (!in_array($trimMode, ['l', 'r'])) {
+            throw new \InvalidArgumentException('Invalid trimMode. Available trimModes are `l` and `r`, ' . $trimMode . ' given.');
+        }
+
+        $output = $input;
+        foreach ($charsToTrim as $char) {
+            switch ($trimMode) {
+                case 'l':
+                    $output = ltrim($output, $char);
+                    break;
+
+                case 'r':
+                    $output = rtrim($output, $char);
+                    break;
+            }
+        }
+        return $output;
+    }
+}
