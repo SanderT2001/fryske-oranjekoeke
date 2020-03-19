@@ -9,7 +9,8 @@ class HtmlTags extends Partial
 {
     protected $templates = [
         'css'    => '<link href="$url" rel="stylesheet" type="text/css">',
-        'script' => '<script src="$url" type="text/javascript"></script>'
+        'script' => '<script src="$url" type="text/javascript"></script>',
+        'img' => '$url'
     ];
 
     public function getTemplate(string $name): ?string
@@ -60,6 +61,20 @@ class HtmlTags extends Partial
         foreach ($name as $file) {
             $url = $this->getUrl('js', $file);
             $output .= $this->parseTemplate('script', $url);
+        }
+        return $output;
+    }
+
+    public function img($name)
+    {
+        if (is_string($name)) {
+            $name = [$name];
+        }
+
+        $output = '';
+        foreach ($name as $file) {
+            $url = $this->getUrl('img', $file, false);
+            $output .= $this->parseTemplate('img', $url);
         }
         return $output;
     }

@@ -170,6 +170,7 @@ class RequestObject
 
             $output = $route;
         }
+
         return $output;
     }
 
