@@ -10,7 +10,8 @@ class HtmlTags extends Partial
     protected $templates = [
         'css'    => '<link href="$url" rel="stylesheet" type="text/css">',
         'script' => '<script src="$url" type="text/javascript"></script>',
-        'img'    => '<img src="$url"></img>'
+        'img'    => '<img src="$url" $attributes></img>',
+        'attr'   => '$name="$value"'
     ];
 
     public function getTemplate(string $name): ?string
@@ -20,15 +21,38 @@ class HtmlTags extends Partial
 
     public function getUrl(string $type, string $name, bool $addSuffix = true): string
     {
+        if ($type === 'img') {
+            $extension = (pathinfo($name)['extension'] ?? null);
+            if ($extension === null) {
+                $name .= ('.png');
+            }
+        }
+
         $suffix = ($addSuffix) ? ('.' . $type) : '';
         $location = (strpos($name, 'vendor') !== false) ? ($name . $suffix) : ($type . DS . $name . $suffix);
         return (ASSETS . $location);
     }
 
-    public function parseTemplate(string $template, string $url): string
+    public function prepareAttributes(array $attributes): string
+    {
+        // @TODO (Sander) eigenlijk moet parseTemplate dit doen.
+        $template = $this->getTemplate('attr');
+
+        $output = '';
+        foreach ($attributes as $name => $attr) {
+            $output .= strtr($template, [
+                '$name'  => $name,
+                '$value' => $attr
+            ]);
+        }
+        return $output;
+    }
+
+    public function parseTemplate(string $template, string $url, string $attributes = ''): string
     {
         return strtr($this->getTemplate($template), [
-            '$url' => $url
+            '$url'        => $url,
+            '$attributes' => $attributes
         ]);
     }
 
@@ -65,14 +89,10 @@ class HtmlTags extends Partial
         return $output;
     }
 
-    public function image(string $name)
+    public function image(string $name, array $attributes = [])
     {
-        $url = $this->getUrl('img', $name, false);
-        $extension = (pathinfo($url)['extension'] ?? null);
-        if ($extension === null) {
-            $url .= ('.png');
-        }
-
-        return $this->parseTemplate('img', $url);
+        $url        = $this->getUrl('img', $name, false);
+        $attributes = $this->prepareAttributes($attributes);
+        return $this->parseTemplate('img', $url, $attributes);
     }
 }
