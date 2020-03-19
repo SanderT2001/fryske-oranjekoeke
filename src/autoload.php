@@ -49,12 +49,14 @@ spl_autoload_register(function(string $className): void
             break;
 
         default:
-            throw new \InvalidArgumentException('Namespace not supported yet.');
+            return;
     }
     $classPath = ($classPath . '.php');
 
     if (is_file($classPath) === false) {
-        throw new \InvalidArgumentException('File not found, given path is ' . $classPath);
+        // @NOTE Don't throw an exception, because this will prevent PHP from trying other autoloaders to load the file when this autoloader cannot.
+        // throw new \InvalidArgumentException('File not found, given path is ' . $classPath);
+        return;
     }
     @require_once $classPath;
 });

@@ -1,5 +1,5 @@
 @echo off
 
-mkdir ../../../app
+mkdir "../../../app"
 
-xcopy /s ./app-skeleton/* ../../../
+xcopy /e .\app-skeleton ..\..\..\
