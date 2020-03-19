@@ -73,18 +73,6 @@ class Controller
     }
 
     /**
-     * Load a Single Model so it is available in the Controller by its name (@param $name).
-     *
-     * @param string $name The name of the Model to load.
-     *
-     * @return void
-     */
-    public function loadModel(string $name): void
-    {
-        $this->{$name} = get_app_class('model', $name);
-    }
-
-    /**
      * Wrapper Function to be able to load all the Models from @see Controller::models.
      *
      * @uses Controller::loadModel To be able to load a Single Model.
@@ -96,5 +84,17 @@ class Controller
         foreach ($this->getModels() as $name) {
             $this->loadModel($name);
         }
+    }
+
+    /**
+     * Load a Single Model so it is available in the Controller by its name (@param $name).
+     *
+     * @param string $name The name of the Model to load.
+     *
+     * @return void
+     */
+    public function loadModel(string $name): void
+    {
+        $this->{$name} = get_app_class('model', $name);
     }
 }
