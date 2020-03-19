@@ -10,7 +10,7 @@ class HtmlTags extends Partial
     protected $templates = [
         'css'    => '<link href="$url" rel="stylesheet" type="text/css">',
         'script' => '<script src="$url" type="text/javascript"></script>',
-        'img' => '$url'
+        'img'    => '<img src="$url"></img>'
     ];
 
     public function getTemplate(string $name): ?string
@@ -65,17 +65,14 @@ class HtmlTags extends Partial
         return $output;
     }
 
-    public function img($name)
+    public function image(string $name)
     {
-        if (is_string($name)) {
-            $name = [$name];
+        $url = $this->getUrl('img', $name, false);
+        $extension = (pathinfo($url)['extension'] ?? null);
+        if ($extension === null) {
+            $url .= ('.png');
         }
 
-        $output = '';
-        foreach ($name as $file) {
-            $url = $this->getUrl('img', $file, false);
-            $output .= $this->parseTemplate('img', $url);
-        }
-        return $output;
+        return $this->parseTemplate('img', $url);
     }
 }
