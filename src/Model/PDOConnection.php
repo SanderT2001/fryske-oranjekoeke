@@ -103,7 +103,12 @@ class PDOConnection
         if ($prefix !== null) {
             $this->setTablePrefix($prefix);
         }
-    } 
+    }
+
+    public function getLastInsertedId(): ?int
+    {
+        return $this->getConnection()->lastInsertId();
+    }
 
     /**
      * Builds a SELECT query with the conditions from @param conditions.

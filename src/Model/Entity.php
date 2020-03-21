@@ -12,7 +12,7 @@ class Entity
     public $required = [
     ];
 
-    public $id;
+    public $id = 0;
 
     public function getRequired(): array
     {
