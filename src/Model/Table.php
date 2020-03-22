@@ -186,11 +186,9 @@ class Table extends PDOConnection
     public function getErrors(Entity $target): array
     {
         $errors = [];
-        $required = [];
-        if (!isset($target->required)) {
-            $tmp = new $target;
-            $required = $tmp->required;
-        }
+        // Require fresh requirements if not present..
+        $required = ($target->required ?? (new $target)->required);
+
         foreach ($required as $field) {
             if (!empty($target->{'get' . ucfirst($field)}())) {
                 continue;
