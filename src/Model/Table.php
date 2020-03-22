@@ -148,12 +148,29 @@ class Table extends PDOConnection
                 $results[$id]->{$tableName} = $relationResults;
             }
         }
-        return $results;
+        return $this->afterSelect($results);
     }
 
     public function add(Entity $entity): bool
     {
         return $this->insert($this->beforeSave($entity));
+    }
+
+    public function addMultiple(array $entities): bool
+    {
+        $saveData = [];
+        foreach ($entities as $entity) {
+            if ($entity instanceof Entity === false) {
+                continue;
+            }
+
+            $saveData[] = $this->beforeSave($entity);
+        }
+
+        if ($saveData === []) {
+            return true;
+        }
+        return $this->insertMultiple($saveData);
     }
 
     public function edit(Entity $entity): bool
@@ -169,11 +186,9 @@ class Table extends PDOConnection
     public function getErrors(Entity $target): array
     {
         $errors = [];
-        $required = [];
-        if (!isset($target->required)) {
-            $tmp = new $target;
-            $required = $tmp->required;
-        }
+        // Require fresh requirements if not present..
+        $required = ($target->required ?? (new $target)->required);
+
         foreach ($required as $field) {
             if (!empty($target->{'get' . ucfirst($field)}())) {
                 continue;
@@ -188,16 +203,38 @@ class Table extends PDOConnection
     protected function beforeSave(Entity $entity): array
     {
         if (!empty($this->getErrors($entity))) {
-            return false;
+            return [];
         }
         $saveArray = (array) $entity;
         $saveArray = $this->stripSystemKeys($saveArray);
         return $saveArray;
     }
 
+    /**
+     * Function that is invoked after a FryskeOranjekoeke\Model\Table::select().
+     *
+     * @param array $rows Containing the fetched rows.
+     *
+     * @return array
+     */
+    protected function afterSelect(array $rows): array
+    {
+        $rows = $this->unsetRuntimeProperties($rows);
+        return $rows;
+    }
+
     protected function stripSystemKeys(array $entity): array
     {
         unset($entity['required']);
         return $entity;
+    }
+
+    // @TODO (Sander) Docs
+    protected function unsetRuntimeProperties(array $rows): array
+    {
+        foreach ($rows as &$row) {
+            unset($row->required);
+        }
+        return $rows;
     }
 }

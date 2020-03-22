@@ -103,7 +103,12 @@ class PDOConnection
         if ($prefix !== null) {
             $this->setTablePrefix($prefix);
         }
-    } 
+    }
+
+    public function getLastInsertedId(): ?int
+    {
+        return $this->getConnection()->lastInsertId();
+    }
 
     /**
      * Builds a SELECT query with the conditions from @param conditions.
@@ -183,33 +188,49 @@ class PDOConnection
 
     protected function insert(array $data): bool
     {
-        $query = 'INSERT INTO $table (';
         unset($data['id']);
 
-        $count = 0;
-        foreach ($data as $field => $value) {
-            if ($count > 0) {
-                $query .= ', ';
-            }
-            $query .= $field;
-            $count++;
-        }
-        $query .= ') VALUES (';
+        $query = 'INSERT INTO $table (';
+        $query .= implode(array_keys($data), ', ');
+        $query .= ') ';
+        $query .= 'VALUES ';
 
-        $count = 0;
-        foreach ($data as $field => $value) {
-            if ($count > 0) {
-                $query .= ', ';
-            }
-            $query .= (':' . $field);
-            $count++;
+        $columns = array_keys($data);
+        foreach ($columns as $key => $col) {
+            $columns[$key] = ':' . $col;
         }
-        $query .= ')';
+        $query .= '(' . implode($columns, ', ') . ')';
 
         $query = strtr($query, [
             '$table'  => $this->getTableName()
         ]);
         return $this->getConnection()->prepare($query)->execute($data);
+    }
+
+    protected function insertMultiple(array $data): bool
+    {
+        foreach ($data as $key => $value) {
+            unset($data[$key]['id']);
+        }
+
+        $query = 'INSERT INTO $table (';
+        $query .= implode(array_keys($data[0]), ', ');
+        $query .= ') ';
+        $query .= 'VALUES ';
+
+        $columns = array_keys($data[0]);
+        foreach ($columns as $key => $col) {
+            $columns[$key] = ':' . $col;
+        }
+        $query .= '(' . implode($columns, ', ') . ')';
+
+        $query = strtr($query, [
+            '$table'  => $this->getTableName()
+        ]);
+        foreach ($data as $d) {
+            $this->getConnection()->prepare($query)->execute($d);
+        }
+        return true;
     }
 
     protected function update(int $id, array $data): bool
@@ -266,7 +287,6 @@ class PDOConnection
     protected function afterSelect(array $rows): array
     {
         $rows = $this->setIdAsPK($rows);
-        $rows = $this->unsetRuntimeProperties($rows);
         return $rows;
     }
 
@@ -284,14 +304,5 @@ class PDOConnection
             $output[$row->id] = $row;
         }
         return $output;
-    }
-
-    // @TODO (Sander) Docs
-    protected function unsetRuntimeProperties(array $rows): array
-    {
-        foreach ($rows as &$row) {
-            unset($row->required);
-        }
-        return $rows;
     }
 }
