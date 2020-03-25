@@ -67,6 +67,8 @@ class HtmlTags extends Partial
             $name = [$name];
         }
 
+        $attributes = $this->prepareAttributes($attributes);
+
         $output = '';
         foreach ($name as $file) {
             $url = $this->getUrl('css', $file);
@@ -80,6 +82,8 @@ class HtmlTags extends Partial
         if (is_string($name)) {
             $name = [$name];
         }
+
+        $attributes = $this->prepareAttributes($attributes);
 
         $output = '';
         foreach ($name as $file) {
