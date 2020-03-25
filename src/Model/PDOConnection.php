@@ -168,7 +168,15 @@ class PDOConnection
                         if ($subconditionsCount > 0) {
                             $conditionsStr .= ' AND';
                         }
-                        $conditionsStr .= (' ' . $field . '=' . '"' . $value . '"');
+
+                        if (stripos($field, 'LIKE') !== false) {
+                            // Like statement
+                            $conditionsStr .= (' ' . $field . '  ' . '"%' . $value . '%"');
+                        } else {
+                            // Normal statement
+                            $conditionsStr .= (' ' . $field . '=' . '"' . $value . '"');
+                        }
+
                         $subconditionsCount++;
                     }
             }
@@ -179,7 +187,6 @@ class PDOConnection
             '$relations'  => $relations,
             '$conditions' => $conditionsStr
         ]);
-
         $rows = $this->getConnection()
                      ->query($query)
                      ->fetchAll(\PDO::FETCH_CLASS, $this->getEntityPath());
