@@ -216,7 +216,15 @@ class PDOConnection
         $query = strtr($query, [
             '$table'  => $this->getTableName()
         ]);
-        return $this->getConnection()->prepare($query)->execute($data);
+        $prepared = $this->getConnection()->prepare($query);
+
+        $success = true;
+        try {
+            $prepared->execute($data);
+        } catch (\Exception $e) {
+            $success = false;
+        }
+        return $success;
     }
 
     protected function insertMultiple(array $data): bool
@@ -248,26 +256,31 @@ class PDOConnection
 
     protected function update(int $id, array $data): bool
     {
-        $query = 'UPDATE $table SET';
         unset($data['id']);
-
-        $sqldata = [];
-
-        $count = 0;
-        foreach ($data as $field => $value) {
-            if ($count > 0) {
-                $query .= ',';
-            }
-            $query .= (' ' . $field . '=:' . $field);
-            $sqldata[$field] = $this->escapeQuotes($value);
-            $count++;
+        foreach ($data as $key => $value) {
+            $data[$key] = $this->escapeQuotes($value);
         }
-        $query .= (' WHERE id=:id');
-        $sqldata['id'] = $id;
+
+        $query = 'UPDATE $table SET ';
+        foreach (array_keys($data) as $key => $field) {
+            $query .= ($field . '=:' . $field);
+            if ($key < count(array_keys($data)) - 1) {
+                $query .=  (', ');
+            }
+        }
+        $query .= (' WHERE id=' . $id);
         $query = strtr($query, [
             '$table' => $this->getTableName()
         ]);
-        return $this->getConnection()->prepare($query)->execute($sqldata);
+        $prepared = $this->getConnection()->prepare($query);
+
+        $success = true;
+        try {
+            $prepared->execute($data);
+        } catch (\Exception $e) {
+            $success = false;
+        }
+        return $success;
     }
 
     protected function delete(array $conditions): bool
