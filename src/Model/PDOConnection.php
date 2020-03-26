@@ -288,8 +288,13 @@ class PDOConnection
         return $success;
     }
 
-    private function escapeQuotes(string $raw): string
+    // no return types and param type hint because of when param given is null
+    private function escapeQuotes($raw)
     {
+        if (!is_string($raw)) {
+            return $raw;
+        }
+
         $escaped = $raw;
 
         // Escape single and double quotes.
