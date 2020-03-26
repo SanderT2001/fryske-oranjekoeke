@@ -8,8 +8,8 @@ use \FryskeOranjekoeke\View\View as View;
 class HtmlTags extends Partial
 {
     protected $templates = [
-        'css'    => '<link href="$url" rel="stylesheet" type="text/css">',
-        'script' => '<script src="$url" type="text/javascript"></script>',
+        'css'    => '<link href="$url" rel="stylesheet" type="text/css" $attributes>',
+        'script' => '<script src="$url" type="text/javascript" $attributes></script>',
         'img'    => '<img src="$url" $attributes></img>',
         'attr'   => '$name="$value"'
     ];
@@ -61,30 +61,34 @@ class HtmlTags extends Partial
         parent::__construct($view);
     }
 
-    public function css($name)
+    public function css($name, array $attributes = [])
     {
         if (is_string($name)) {
             $name = [$name];
         }
+
+        $attributes = $this->prepareAttributes($attributes);
 
         $output = '';
         foreach ($name as $file) {
             $url = $this->getUrl('css', $file);
-            $output .= $this->parseTemplate('css', $url);
+            $output .= $this->parseTemplate('css', $url, $attributes);
         }
         return $output;
     }
 
-    public function script($name)
+    public function script($name, array $attributes = [])
     {
         if (is_string($name)) {
             $name = [$name];
         }
 
+        $attributes = $this->prepareAttributes($attributes);
+
         $output = '';
         foreach ($name as $file) {
             $url = $this->getUrl('js', $file);
-            $output .= $this->parseTemplate('script', $url);
+            $output .= $this->parseTemplate('script', $url, $attributes);
         }
         return $output;
     }
