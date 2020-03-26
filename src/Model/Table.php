@@ -107,11 +107,7 @@ class Table extends PDOConnection
                 'id' => $id
             ]
         ];
-        foreach ($this->getMagicSelectConditions() as $rule => $value) {
-            if (isset($conditions[$rule])) {
-                $conditions[$rule] = array_merge($conditions[$rule], $value);
-            }
-        }
+        $conditions = $this->mergeMagicSelectConditions($conditions);
         $row = $this->select($conditions);
         return ($row[key($row)] ?? null);
     }
@@ -138,11 +134,9 @@ class Table extends PDOConnection
         foreach ($results as $id => $data) {
             foreach ($this->getRelationships() as $tableName => $relSettings) {
                 $selectConditions = $this->{$tableName}->getMagicSelectConditions();
-                if (isset($selectConditions['WHERE'])) {
-                    $selectConditions['WHERE'] = array_merge($selectConditions['WHERE'], [
-                        'id' => $data->{$relSettings['relationship']['foreignKey']}
-                    ]);
-                }
+                $selectConditions['WHERE'] = array_merge(($selectConditions['WHERE'] ?? []), [
+                    'id' => $data->{$relSettings['relationship']['foreignKey']}
+                ]);
 
                 $relationResults = $this->{$tableName}->select($selectConditions);
                 $results[$id]->{$tableName} = $relationResults;
@@ -207,7 +201,18 @@ class Table extends PDOConnection
         }
         $saveArray = (array) $entity;
         $saveArray = $this->stripSystemKeys($saveArray);
+        $saveArray = $this->stripRelationships($saveArray);
         return $saveArray;
+    }
+
+    protected function mergeMagicSelectConditions(array $conditions): array
+    {
+        foreach ($this->getMagicSelectConditions() as $rule => $value) {
+            if (isset($conditions[$rule])) {
+                $conditions[$rule] = array_merge($conditions[$rule], $value);
+            }
+        }
+        return $conditions;
     }
 
     /**
@@ -226,6 +231,15 @@ class Table extends PDOConnection
     protected function stripSystemKeys(array $entity): array
     {
         unset($entity['required']);
+        unset($entity['types']);
+        return $entity;
+    }
+
+    protected function stripRelationships(array $entity): array
+    {
+        foreach ($this->getRelationships() as $tableName => $relSettings) {
+            unset($entity[$tableName]);
+        }
         return $entity;
     }
 
@@ -234,6 +248,7 @@ class Table extends PDOConnection
     {
         foreach ($rows as &$row) {
             unset($row->required);
+            unset($row->types);
         }
         return $rows;
     }
