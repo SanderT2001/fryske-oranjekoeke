@@ -41,8 +41,7 @@ class RequestObject
      *
      * @var stdClass
      */
-    protected $data = [
-    ];
+    protected $data = null;
 
     public function getDestination(): array
     {
@@ -86,7 +85,7 @@ class RequestObject
 
     public function getData(): \stdClass
     {
-        return $this->data;
+        return ($this->data instanceof \stdClass === true) ? $this->data : new \stdClass();
     }
 
     public function setData(\stdClass $data): void

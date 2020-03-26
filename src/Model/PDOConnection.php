@@ -196,6 +196,9 @@ class PDOConnection
     protected function insert(array $data): bool
     {
         unset($data['id']);
+        foreach ($data as $key => $value) {
+            $data[$key] = $this->escapeQuotes($value);
+        }
 
         $query = 'INSERT INTO $table (';
         $query .= implode(array_keys($data), ', ');
@@ -218,6 +221,7 @@ class PDOConnection
     {
         foreach ($data as $key => $value) {
             unset($data[$key]['id']);
+            $data[$key] = $this->escapeQuotes($value);
         }
 
         $query = 'INSERT INTO $table (';
@@ -253,7 +257,7 @@ class PDOConnection
                 $query .= ',';
             }
             $query .= (' ' . $field . '=:' . $field);
-            $sqldata[$field] = $value;
+            $sqldata[$field] = $this->escapeQuotes($value);
             $count++;
         }
         $query .= (' WHERE id=:id');
@@ -282,6 +286,16 @@ class PDOConnection
             $success = false;
         }
         return $success;
+    }
+
+    private function escapeQuotes(string $raw): string
+    {
+        $escaped = $raw;
+
+        // Escape single and double quotes.
+        $escaped = str_replace("'", "\'", $escaped);
+        $escaped = str_replace('"', '\"', $escaped);
+        return $escaped;
     }
 
     /**
