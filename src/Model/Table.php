@@ -231,6 +231,7 @@ class Table extends PDOConnection
     protected function stripSystemKeys(array $entity): array
     {
         unset($entity['required']);
+        unset($entity['types']);
         return $entity;
     }
 
@@ -247,6 +248,7 @@ class Table extends PDOConnection
     {
         foreach ($rows as &$row) {
             unset($row->required);
+            unset($row->types);
         }
         return $rows;
     }
