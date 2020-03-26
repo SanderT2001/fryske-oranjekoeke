@@ -21,6 +21,10 @@ class HtmlTags extends Partial
 
     public function getUrl(string $type, string $name, bool $addSuffix = true): string
     {
+        if (strpos($name, 'http') !== false) {
+            return $name;
+        }
+
         if ($type === 'img') {
             $extension = (pathinfo($name)['extension'] ?? null);
             if ($extension === null) {
