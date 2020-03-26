@@ -12,6 +12,9 @@ class Entity
     public $required = [
     ];
 
+    public $types = [
+    ];
+
     public $id = 0;
 
     public function getRequired(): array
@@ -80,7 +83,13 @@ class Entity
                 // Get the variable that was requested to be set.
                 $targetVariable = $this->getVariableNameFromGetSetFuncName($func);
                 // Only set the variable if its name is know.
-                ($targetVariable === null) ? : $this->{$targetVariable} = ($params[0] ?? null);
+                if ($targetVariable === null) {
+                    return;
+                }
+                if (isset($params[0]) && (isset($this->types[$targetVariable])) && (gettype($params[0]) !== $this->types[$targetVariable])) {
+                    throw new \TypeError();
+                }
+                $this->{$targetVariable} = ($params[0] ?? null);
                 break;
 
             default:
