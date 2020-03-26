@@ -134,11 +134,9 @@ class Table extends PDOConnection
         foreach ($results as $id => $data) {
             foreach ($this->getRelationships() as $tableName => $relSettings) {
                 $selectConditions = $this->{$tableName}->getMagicSelectConditions();
-                if (isset($selectConditions['WHERE'])) {
-                    $selectConditions['WHERE'] = array_merge($selectConditions['WHERE'], [
-                        'id' => $data->{$relSettings['relationship']['foreignKey']}
-                    ]);
-                }
+                $selectConditions['WHERE'] = array_merge(($selectConditions['WHERE'] ?? []), [
+                    'id' => $data->{$relSettings['relationship']['foreignKey']}
+                ]);
 
                 $relationResults = $this->{$tableName}->select($selectConditions);
                 $results[$id]->{$tableName} = $relationResults;
@@ -233,6 +231,7 @@ class Table extends PDOConnection
     protected function stripSystemKeys(array $entity): array
     {
         unset($entity['required']);
+        unset($entity['types']);
         return $entity;
     }
 
@@ -249,6 +248,7 @@ class Table extends PDOConnection
     {
         foreach ($rows as &$row) {
             unset($row->required);
+            unset($row->types);
         }
         return $rows;
     }

@@ -169,6 +169,8 @@ class PDOConnection
                             $conditionsStr .= ' AND';
                         }
 
+                        $value = $this->escapeQuotes($value);
+
                         if (stripos($field, 'LIKE') !== false) {
                             // Like statement
                             $conditionsStr .= (' ' . $field . '  ' . '"%' . $value . '%"');
@@ -196,6 +198,9 @@ class PDOConnection
     protected function insert(array $data): bool
     {
         unset($data['id']);
+        foreach ($data as $key => $value) {
+            $data[$key] = $this->escapeQuotes($value);
+        }
 
         $query = 'INSERT INTO $table (';
         $query .= implode(array_keys($data), ', ');
@@ -211,13 +216,22 @@ class PDOConnection
         $query = strtr($query, [
             '$table'  => $this->getTableName()
         ]);
-        return $this->getConnection()->prepare($query)->execute($data);
+        $prepared = $this->getConnection()->prepare($query);
+
+        $success = true;
+        try {
+            $prepared->execute($data);
+        } catch (\Exception $e) {
+            $success = false;
+        }
+        return $success;
     }
 
     protected function insertMultiple(array $data): bool
     {
         foreach ($data as $key => $value) {
             unset($data[$key]['id']);
+            $data[$key] = $this->escapeQuotes($value);
         }
 
         $query = 'INSERT INTO $table (';
@@ -242,26 +256,31 @@ class PDOConnection
 
     protected function update(int $id, array $data): bool
     {
-        $query = 'UPDATE $table SET';
         unset($data['id']);
-
-        $sqldata = [];
-
-        $count = 0;
-        foreach ($data as $field => $value) {
-            if ($count > 0) {
-                $query .= ',';
-            }
-            $query .= (' ' . $field . '=:' . $field);
-            $sqldata[$field] = $value;
-            $count++;
+        foreach ($data as $key => $value) {
+            $data[$key] = $this->escapeQuotes($value);
         }
-        $query .= (' WHERE id=:id');
-        $sqldata['id'] = $id;
+
+        $query = 'UPDATE $table SET ';
+        foreach (array_keys($data) as $key => $field) {
+            $query .= ($field . '=:' . $field);
+            if ($key < count(array_keys($data)) - 1) {
+                $query .=  (', ');
+            }
+        }
+        $query .= (' WHERE id=' . $id);
         $query = strtr($query, [
             '$table' => $this->getTableName()
         ]);
-        return $this->getConnection()->prepare($query)->execute($sqldata);
+        $prepared = $this->getConnection()->prepare($query);
+
+        $success = true;
+        try {
+            $prepared->execute($data);
+        } catch (\Exception $e) {
+            $success = false;
+        }
+        return $success;
     }
 
     protected function delete(array $conditions): bool
@@ -282,6 +301,21 @@ class PDOConnection
             $success = false;
         }
         return $success;
+    }
+
+    // no return types and param type hint because of when param given is null
+    private function escapeQuotes($raw)
+    {
+        if (!is_string($raw)) {
+            return $raw;
+        }
+
+        $escaped = $raw;
+
+        // Escape single and double quotes.
+        $escaped = str_replace("'", "\'", $escaped);
+        $escaped = str_replace('"', '\"', $escaped);
+        return $escaped;
     }
 
     /**
