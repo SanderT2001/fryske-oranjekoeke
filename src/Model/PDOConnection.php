@@ -169,6 +169,8 @@ class PDOConnection
                             $conditionsStr .= ' AND';
                         }
 
+                        $value = $this->escapeQuotes($value);
+
                         if (stripos($field, 'LIKE') !== false) {
                             // Like statement
                             $conditionsStr .= (' ' . $field . '  ' . '"%' . $value . '%"');
