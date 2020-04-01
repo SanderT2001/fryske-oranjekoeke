@@ -13,20 +13,8 @@ The simple MVC PHP Framework.
 * MySQL 8.0
 
 ## Start using
-* CD into your project directory and make sure the following subdirectories are present.
+* To create a project, execute the `create-project.sh` file which will guide you through the process of creating a amazing project with the Framework.
 ```sh
-$ mkdir -p vendor/sandert2001
-```
-* Then CD into the above sandert2001 vendor directory and clone this repository there.
-```sh
-$ git clone https://github.com/SanderT2001/fryske-oranjekoeke.git
-```
-* Then make the `create-project.sh` file executable (if that is not already the case).
-```sh
-$ chmod +x ./create-project.sh
-```
-* After that, execute the `create-project.sh` file in order to create the App.
-```
 $ ./create-project.sh
 ```
 * Now your App should be created and you are ready to start using _Fryske Oranjekoeke_. If you are using _NGINX_, make sure you have the correct Rewrite Rules set (noted below).If you are using _APACHE_, the `.htaccess` file is already present in: `yourproject/public/.htaccess`.
