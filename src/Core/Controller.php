@@ -117,7 +117,7 @@ class Controller
 
     public function getPartialPath(string $name)
     {
-        return (FRYSKE_ORANJEKOEKE . DS . 'Partials' . DS . $name . '.php');
+        return (FRYSKE_ORANJEKOEKE . DS . 'Partial' . DS . $name . '.php');
     }
 
     /**
@@ -140,7 +140,7 @@ class Controller
             throw new \InvalidArgumentException('Partial File not found. Given Partial is: ' . $name);
         }
 
-        $partial = strtr('FryskeOranjekoeke\Partials\$partial', [
+        $partial = strtr('FryskeOranjekoeke\Partial\$partial', [
             '$partial' => $name
         ]);
         $partialInstance = new $partial($this);

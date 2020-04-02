@@ -23,26 +23,6 @@ class BaseApplication
      */
     protected $controller = null;
 
-    public function getRequest(): RequestObject
-    {
-        return $this->request;
-    }
-
-    public function setRequest(RequestObject $request)
-    {
-        $this->request = $request;
-    }
-
-    public function getController(): Controller
-    {
-        return $this->controller;
-    }
-
-    protected function setController(Controller $controller)
-    {
-        $this->controller = $controller;
-    }
-
     /**
      * Handles the whole request from Controller to View.
      *
@@ -69,6 +49,26 @@ class BaseApplication
             // Render the view
             $this->getController()->getView()->render();
         }
+    }
+
+    public function getRequest(): RequestObject
+    {
+        return $this->request;
+    }
+
+    public function setRequest(RequestObject $request)
+    {
+        $this->request = $request;
+    }
+
+    public function getController(): Controller
+    {
+        return $this->controller;
+    }
+
+    protected function setController(Controller $controller)
+    {
+        $this->controller = $controller;
     }
 
     /**

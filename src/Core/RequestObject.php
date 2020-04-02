@@ -43,56 +43,6 @@ class RequestObject
      */
     protected $data = null;
 
-    public function getDestination(): array
-    {
-        return $this->destination;
-    }
-
-    public function setDestination(array $data): void
-    {
-        if (!array_keys_exists(['controller', 'action'], $data)) {
-            throw new \InvalidArgumentException('setDestination must contain `controller` and `action` as array keys.');
-        }
-
-        $data['controller'] = ucfirst($data['controller']);
-        $this->destination = $data;
-    }
-
-    public function getHeader(string $header): ?string
-    {
-        return $this->headers['HTTP_' . strtoupper($header)] ?? null;
-    }
-
-    public function getHeaders(): array
-    {
-        return $this->headers;
-    }
-
-    public function setHeaders(array $headers): void
-    {
-        $this->headers = $headers;
-    }
-
-    public function getMethod(): string
-    {
-        return $this->method;
-    }
-
-    public function setMethod(string $method): void
-    {
-        $this->method = $method;
-    }
-
-    public function getData(): \stdClass
-    {
-        return ($this->data instanceof \stdClass === true) ? $this->data : new \stdClass();
-    }
-
-    public function setData(\stdClass $data): void
-    {
-        $this->data = $data;
-    }
-
     /**
      * @param array $serverVars Must contain the following keys:
      *                          array(
@@ -144,6 +94,56 @@ class RequestObject
         if (!empty($requestData)) {
             $this->setData(json_decode($requestData));
         }
+    }
+
+    public function getDestination(): array
+    {
+        return $this->destination;
+    }
+
+    public function setDestination(array $data): void
+    {
+        if (!array_keys_exists(['controller', 'action'], $data)) {
+            throw new \InvalidArgumentException('setDestination must contain `controller` and `action` as array keys.');
+        }
+
+        $data['controller'] = ucfirst($data['controller']);
+        $this->destination = $data;
+    }
+
+    public function getHeader(string $header): ?string
+    {
+        return $this->headers['HTTP_' . strtoupper($header)] ?? null;
+    }
+
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    public function setHeaders(array $headers): void
+    {
+        $this->headers = $headers;
+    }
+
+    public function getMethod(): string
+    {
+        return $this->method;
+    }
+
+    public function setMethod(string $method): void
+    {
+        $this->method = $method;
+    }
+
+    public function getData(): \stdClass
+    {
+        return ($this->data instanceof \stdClass === true) ? $this->data : new \stdClass();
+    }
+
+    public function setData(\stdClass $data): void
+    {
+        $this->data = $data;
     }
 
     /**

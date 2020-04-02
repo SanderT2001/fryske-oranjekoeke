@@ -1,6 +1,6 @@
 <?php
 
-namespace FryskeOranjekoeke\Partials;
+namespace FryskeOranjekoeke\Partial;
 
 class Partial
 {

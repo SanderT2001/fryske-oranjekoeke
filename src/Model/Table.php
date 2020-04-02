@@ -37,6 +37,27 @@ class Table extends PDOConnection
     protected $relationships = [
     ];
 
+    public function __construct()
+    {
+        parent::__construct(
+            APP_CONFIG['database']['name'],
+            $this->getTable(),
+            APP_CONFIG['database']['host'],
+            APP_CONFIG['database']['username'],
+            APP_CONFIG['database']['password'],
+            APP_CONFIG['database']['table_prefix']
+        );
+
+        // Set Entity if not given already.
+        if ($this->getTable() !== null) {
+            $this->setTable($this->getTable());
+        }
+
+        foreach ($this->getRelationships() as $tableName => $relSettings) {
+            $this->{$tableName} = get_app_class('model', $tableName);
+        }
+    }
+
     public function getTable(): ?string
     {
         return $this->table;
@@ -70,27 +91,6 @@ class Table extends PDOConnection
     public function getRelationships(): array
     {
         return $this->relationships;
-    }
-
-    public function __construct()
-    {
-        parent::__construct(
-            APP_CONFIG['database']['name'],
-            $this->getTable(),
-            APP_CONFIG['database']['host'],
-            APP_CONFIG['database']['username'],
-            APP_CONFIG['database']['password'],
-            APP_CONFIG['database']['table_prefix']
-        );
-
-        // Set Entity if not given already.
-        if ($this->getTable() !== null) {
-            $this->setTable($this->getTable());
-        }
-
-        foreach ($this->getRelationships() as $tableName => $relSettings) {
-            $this->{$tableName} = get_app_class('model', $tableName);
-        }
     }
 
     /**

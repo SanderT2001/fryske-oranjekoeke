@@ -48,6 +48,13 @@ class View
      */
     protected $partials = [];
 
+    public function __construct()
+    {
+        // Load the required partials for this object to work..
+        $this->setPartial('Content');
+        $this->setPartial('HtmlTags');
+    }
+
     public function getLayoutPath(string $filename = null): string
     {
         if ($filename === null) {
@@ -149,13 +156,6 @@ class View
     public function setData(string $name, $data = null)
     {
         $this->data[$name] = $data;
-    }
-
-    public function __construct()
-    {
-        // Load the required partials for this object to work..
-        $this->setPartial('Content');
-        $this->setPartial('HtmlTags');
     }
 
     /**

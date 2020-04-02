@@ -36,6 +36,29 @@ class PDOConnection
      */
     protected $entityPath = null;
 
+    public function __construct(
+        string $dbname,
+        string $table,
+        string $host     = 'localhost',
+        string $username = 'root',
+        string $password = 'root',
+        string $prefix   = null
+    ) {
+        $connectionString = 'mysql:host=$host;dbname=$dbname';
+        $connectionString = strtr($connectionString, [
+            '$host'   => $host,
+            '$dbname' => $dbname
+        ]);
+        $this->setConnection(new \PDO($connectionString, $username, $password));
+        $this->getConnection()
+             ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+        $this->setTableName($table);
+        if ($prefix !== null) {
+            $this->setTablePrefix($prefix);
+        }
+    }
+
     public function getConnection()
     {
         return $this->connection;
@@ -80,29 +103,6 @@ class PDOConnection
     public function getEntityPath(): string
     {
         return $this->entityPath;
-    }
-
-    public function __construct(
-        string $dbname,
-        string $table,
-        string $host     = 'localhost',
-        string $username = 'root',
-        string $password = 'root',
-        string $prefix   = null
-    ) {
-        $connectionString = 'mysql:host=$host;dbname=$dbname';
-        $connectionString = strtr($connectionString, [
-            '$host'   => $host,
-            '$dbname' => $dbname
-        ]);
-        $this->setConnection(new \PDO($connectionString, $username, $password));
-        $this->getConnection()
-             ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-
-        $this->setTableName($table);
-        if ($prefix !== null) {
-            $this->setTablePrefix($prefix);
-        }
     }
 
     public function getLastInsertedId(): ?int
