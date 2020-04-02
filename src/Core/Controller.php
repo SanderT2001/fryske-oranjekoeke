@@ -71,7 +71,12 @@ class Controller
 
     public function getView(): View
     {
+        if ($this->view === null) {
+            $this->view = new View();
+        }
+
         return $this->view;
+
     }
 
     public function setView(View $view)

@@ -1,16 +1,16 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title><?= APP_CONFIG['application']['name']; ?></title>
+        <title><?= $this->Content->placeholder('title'); ?></title>
 
         <!-- Stylesheets -->
-        <? // <?= $this->include('styles'); ?>
+        <?= $this->HtmlTags->css('error'); ?>
 
         <!-- Javascript -->
         <? // <?= $this->include('scripts'); ?>
     </head>
 
     <body>
-        <?= $this->include('main'); ?>
+        <?= $this->Content->placeholder('main_content'); ?>
     </body>
 </html>

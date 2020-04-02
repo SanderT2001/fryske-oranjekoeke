@@ -48,6 +48,7 @@ class View
      */
     protected $partials = [
         'Content',
+        'UrlBuilder',
         'HtmlTags'
     ];
 
@@ -69,13 +70,14 @@ class View
     /**
      * @throws InvalidArgumentException When no File/View could be found which matches the parameter.
      */
-    public function setLayout(string $name)
+    public function setLayout(string $name): self
     {
         if (!is_file($this->getLayoutPath($name))) {
             throw new \InvalidArgumentException('Layout File not found. Given path is: ' . $name);
         }
 
         $this->layout = $name;
+        return $this;
     }
 
     public function getViewPath(string $parent = null, string $filename = null): ?string
@@ -102,7 +104,7 @@ class View
      *
      * @throws InvalidArgumentException When no File/View could be found which matches the parameters.
      */
-    public function setView(string $parent, string $name = null, bool $validate = true)
+    public function setView(string $parent, string $name = null, bool $validate = true): self
     {
         // No View.
         if (!$parent && $name === null) {
@@ -116,6 +118,7 @@ class View
 
         $this->parent = $parent;
         $this->view   = $name;
+        return $this;
     }
 
     public function getPartials(): array
@@ -157,12 +160,19 @@ class View
     /**
      * Sets a new data entry that will be passed on to the view.
      *
-     * @param string     $name The name that this variable will have in the view.
+     * @param mixed      $name The name that this variable will have in the view.
      * @param mixed|null $data The data to set.
      */
-    public function setData(string $name, $data = null)
+    public function setData($name, $data = null): self
     {
-        $this->data[$name] = $data;
+        $data = $name;
+        if (is_string($name) && $data === null) {
+            $data = [$name => $data];
+        }
+        foreach ($data as $n => $d) {
+            $this->data[$n] = $d;
+        }
+        return $this;
     }
 
     /**

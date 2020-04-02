@@ -1,0 +1,17 @@
+.full-w {
+    width: 100%;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error .title {
+    color: #FFFFFF;
+    background-color: #FF0000;
+    opacity: 0.8;
+    padding: 25px;
+    border-radius: 10px;
+}

@@ -5,6 +5,7 @@ namespace FryskeOranjekoeke\Core;
 require_once 'ConvenienceFunctions.php';
 require_once 'MvcFunctions.php';
 require_once FRYSKE_ORANJEKOEKE . DS . 'autoload.php';
+require_once FRYSKE_ORANJEKOEKE . DS . 'exception_handler.php';
 
 /**
  * The Class that does it all.

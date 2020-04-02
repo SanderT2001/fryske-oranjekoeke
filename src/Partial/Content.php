@@ -27,17 +27,17 @@ class Content extends Partial
         ]);
     }
 
-    public function placeholderContentBlock(string $name): string
+    public function placeholder(string $name): string
     {
         return $this->parseTemplate('placeholder_content_block', $name);
     }
 
-    public function startContentBlock(string $name): string
+    public function start(string $name): string
     {
         return $this->parseTemplate('start_content_block', $name);
     }
 
-    public function endContentBlock(string $name): string
+    public function end(string $name): string
     {
         return $this->parseTemplate('end_content_block', $name);
     }
@@ -46,7 +46,7 @@ class Content extends Partial
     {
         $matches = [];
         // Build regex
-        preg_match_all('/' . $this->placeholderContentBlock('(.*?)') . '/', $layout, $matches);
+        preg_match_all('/' . $this->placeholder('(.*?)') . '/', $layout, $matches);
         if (empty($matches)) {
             return ($layout . $view);
         }
@@ -55,8 +55,8 @@ class Content extends Partial
         // 1 bevat de results
         foreach (($matches[1] ?? []) as $key => $placeholder) {
             // Get the content by the placeholders from the view.
-            $str = get_string_between($view, $this->startContentBlock($placeholder), $this->endContentBlock($placeholder));
-            $content = str_replace($this->placeholderContentBlock($placeholder), $str, $content);
+            $str = get_string_between($view, $this->start($placeholder), $this->end($placeholder));
+            $content = str_replace($this->placeholder($placeholder), $str, $content);
         }
         return $content;
     }
