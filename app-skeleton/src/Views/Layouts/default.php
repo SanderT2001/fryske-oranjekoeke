@@ -11,6 +11,6 @@
     </head>
 
     <body>
-        <?= $this->Content->include('main'); ?>
+        <?= $this->include('main'); ?>
     </body>
 </html>

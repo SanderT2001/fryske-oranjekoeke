@@ -1,8 +1,6 @@
 <?php
 
-namespace FryskeOranjekoeke\View\Partials;
-
-use \FryskeOranjekoeke\View\View as View;
+namespace FryskeOranjekoeke\Partial;
 
 class Content extends Partial
 {
@@ -11,6 +9,11 @@ class Content extends Partial
         'start_content_block'       => '{{StartBlock::$name}}',
         'end_content_block'         => '{{EndBlock::$name}}'
     ];
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
     public function getTemplate(string $name): ?string
     {
@@ -22,11 +25,6 @@ class Content extends Partial
         return strtr($this->getTemplate($template), [
             '$name' => $name
         ]);
-    }
-
-    public function __construct(View $view)
-    {
-        parent::__construct($view);
     }
 
     public function placeholderContentBlock(string $name): string
@@ -61,11 +59,5 @@ class Content extends Partial
             $content = str_replace($this->placeholderContentBlock($placeholder), $str, $content);
         }
         return $content;
-    }
-
-    public function include(string $name)
-    {
-        $filepath = VIEWS . DS . 'Includes' . DS . $name . '.php';
-        return $this->view->getRequireContents($filepath);
     }
 }

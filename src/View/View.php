@@ -46,13 +46,15 @@ class View
      *
      * @var array
      */
-    protected $partials = [];
+    protected $partials = [
+        'Content',
+        'HtmlTags'
+    ];
 
     public function __construct()
     {
         // Load the required partials for this object to work..
-        $this->setPartial('Content');
-        $this->setPartial('HtmlTags');
+        $this->loadPartials();
     }
 
     public function getLayoutPath(string $filename = null): string
@@ -116,9 +118,14 @@ class View
         $this->view   = $name;
     }
 
+    public function getPartials(): array
+    {
+        return $this->partials;
+    }
+
     public function getPartialPath(string $name)
     {
-        return (FRYSKE_ORANJEKOEKE . DS . 'View' . DS . 'Partials' . DS . $name . '.php');
+        return (FRYSKE_ORANJEKOEKE . DS . 'Partial' . DS . $name . '.php');
     }
 
     /**
@@ -141,7 +148,7 @@ class View
             throw new \InvalidArgumentException('Partial File not found. Given Partial is: ' . $name);
         }
 
-        $partial = strtr('FryskeOranjekoeke\View\Partials\$partial', [
+        $partial = strtr('FryskeOranjekoeke\Partial\$partial', [
             '$partial' => $name
         ]);
         $this->partials[$name] = new $partial($this);
@@ -168,6 +175,12 @@ class View
 
         $content = $this->partials['Content']->parseContentBlocks($layout, $view);
         echo $content;
+    }
+
+    public function include(string $name)
+    {
+        $filepath = (VIEWS . DS . 'Includes' . DS . $name . '.php');
+        return $this->getRequireContents($filepath);
     }
 
     /**
@@ -199,5 +212,19 @@ class View
         require $filepath;
         // Get the output buffer and remove it.
         return ob_get_clean();
+    }
+
+    /**
+     * Wrapper Function to be able to load all the Partials from @see Controller::models.
+     *
+     * @uses Controller::setPartial To be able to load a Single Partial.
+     *
+     * @return void
+     */
+    protected function loadPartials(): void
+    {
+        foreach ($this->getPartials() as $name) {
+            $this->setPartial($name);
+        }
     }
 }

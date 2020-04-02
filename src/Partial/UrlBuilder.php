@@ -14,24 +14,30 @@ class UrlBuilder extends Partial
         $this->routes = require (CONFIG . DS . 'routes.php');
     }
 
-    public function searchForRoute(string $controller, string $action = 'index'): ?string
-    {
-        $output = null;
-        foreach ($this->routes as $route => $controllerAction) {
-            if (
-                $controllerAction['controller'] === $controller &&
-                $controllerAction['action']     === $action
-            ) {
-                $output = $route;
-            }
-        }
-        return $output;
-    }
-
     public function build(string $controller, string $action = 'index'): string
     {
         $this->validateControllerAction($controller, $action);
         return $this->constructUrl($controller, $action);
+    }
+
+    public function buildAssetUrl(string $type, string $name, bool $typeAsSuffix = true): string
+    {
+        switch (strtolower($type)) {
+            case 'img':
+                $extension = (pathinfo($name)['extension'] ?? null);
+                // If no extension given, then fallback to the default extension: .png
+                if ($extension === null) {
+                    $name .= ('.png');
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        $suffix = ($typeAsSuffix) ? ('.' . $type) : '';
+        $location = (strpos($name, 'vendor') !== false) ? ($name . $suffix) : ($type . DS . $name . $suffix);
+        return (ASSETS . $location);
     }
 
     private function validateControllerAction(string $controller, string $action): void
@@ -58,5 +64,19 @@ class UrlBuilder extends Partial
         $url = BASE_URL;
         $url .= ($route !== null) ? $route : ($controller . '/' . $action);
         return $url;
+    }
+
+    private function searchForRoute(string $controller, string $action = 'index'): ?string
+    {
+        $output = null;
+        foreach ($this->routes as $route => $controllerAction) {
+            if (
+                $controllerAction['controller'] === $controller &&
+                $controllerAction['action']     === $action
+            ) {
+                $output = $route;
+            }
+        }
+        return $output;
     }
 }
