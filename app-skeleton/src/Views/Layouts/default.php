@@ -4,10 +4,10 @@
         <title><?= APP_CONFIG['application']['name']; ?></title>
 
         <!-- Stylesheets -->
-        <!--<?= $this->Content->include('styles'); ?>-->
+        <? // <?= $this->Content->include('styles'); ?>
 
         <!-- Javascript -->
-        <!--<?= $this->Content->include('scripts'); ?>-->
+        <? // <?= $this->Content->include('scripts'); ?>
     </head>
 
     <body>
