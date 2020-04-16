@@ -3,6 +3,9 @@
  * The Front Controller used for handling every incoming request.
  */
 
+// @TODO Starttime aangeven microtime(true);
+// @TODO realpath aangeven (__DIR__)
+
 // Define the paths.
 require '../config/paths.php';
 
