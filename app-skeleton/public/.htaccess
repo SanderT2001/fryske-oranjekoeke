@@ -2,4 +2,13 @@ RewriteEngine On
 RewriteBase /
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /public/ [L]
+RewriteRule ^(.*)$ index.php?request=$1 [QSA,L]
+
+# VHOST
+#<VirtualHost *:80>
+#	ServerName ...
+#	ServerAlias ...
+#	DocumentRoot ".../public"
+
+#       ErrorLog "logs/your-servername.error.log"
+#</VirtualHost>
