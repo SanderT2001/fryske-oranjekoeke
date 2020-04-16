@@ -107,9 +107,11 @@ class RequestObject
         $requestedPath = $serverVars['REQUEST_URI'];
         $indexPath     = $serverVars['PHP_SELF'];
 
+
         // index.php is the name of the file containing the Front Controller.
         $root = str_replace('index.php', '', $indexPath);
-        $controllerAction = str_replace($root, '', $requestedPath);
+        // if the root is /, then don't perform a str_replace, because that would also remove all the / in the requestedpath
+        $controllerAction = (strlen($root) === 1) ? ltrim($requestedPath, '/') : str_replace($root, '', $requestedPath);
         if (empty($controllerAction)) {
             $controllerAction = '/';
         }
