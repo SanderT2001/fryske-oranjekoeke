@@ -33,7 +33,7 @@ class HtmlTags extends Partial
         }
 
         $suffix = ($addSuffix) ? ('.' . $type) : '';
-        $location = (strpos($name, 'vendor') !== false) ? ($name . $suffix) : ($type . DS . $name . $suffix);
+        $location = (strpos($name, 'vendor') !== false) ? ($name . $suffix) : ($type . '/' . $name . $suffix);
         return (ASSETS . $location);
     }
 
