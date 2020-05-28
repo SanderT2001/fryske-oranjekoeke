@@ -42,7 +42,8 @@ class PDOConnection
         string $host     = 'localhost',
         string $username = 'root',
         string $password = 'root',
-        string $prefix   = null
+        string $prefix   = null,
+        bool   $debug    = true
     ) {
         $connectionString = 'mysql:host=$host;dbname=$dbname';
         $connectionString = strtr($connectionString, [
@@ -50,8 +51,9 @@ class PDOConnection
             '$dbname' => $dbname
         ]);
         $this->setConnection(new \PDO($connectionString, $username, $password));
-        $this->getConnection()
-             ->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        if ($debug) {
+            $this->getConnection()->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        }
 
         $this->setTableName($table);
         if ($prefix !== null) {
