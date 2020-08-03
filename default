@@ -1,0 +1,38 @@
+server
+{
+    listen      80 default_server;
+    listen [::]:80 default_server;
+
+    server_name fryske_oranjekoeke_dev;
+    root        /var/www/fo_test/app/public;
+    index       index.php;
+
+    access_log  /var/log/nginx/access.log;
+    error_log   /var/log/nginx/error.log;
+
+    location /
+    {
+        # If the request was made to a JS/CSS File, don't rewrite.
+        if ($request_uri ~* \.(?:css|js|map|jpe?g|png)$) {
+            break;
+        }
+
+        rewrite ^/(.*) /index.php last;
+    }
+
+    # For every request with an PHP File, let the PHP Engine handle this request.
+    location ~ \.php$
+    {
+        include          fastcgi_params;
+        include          snippets/fastcgi-php.conf;
+
+        # Use PHP Socket to prevent any unnecessary overhead.
+        fastcgi_pass     unix:/var/run/php/php7.4-fpm.sock;
+    }
+
+    # Deny requests to .ht(access) & the .github directory.
+    location ~ /(\.ht|\.github)
+    {
+        deny all;
+    }
+}

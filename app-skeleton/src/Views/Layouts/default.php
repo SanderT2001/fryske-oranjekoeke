@@ -4,13 +4,13 @@
         <title><?= APP_CONFIG['application']['name']; ?></title>
 
         <!-- Stylesheets -->
-        <!--<?= $this->Content->include('styles'); ?>-->
+        <? // <?= $this->include('styles'); ?>
 
         <!-- Javascript -->
-        <!--<?= $this->Content->include('scripts'); ?>-->
+        <? // <?= $this->include('scripts'); ?>
     </head>
 
     <body>
-        <?= $this->Content->include('main'); ?>
+        <?= $this->include('main'); ?>
     </body>
 </html>

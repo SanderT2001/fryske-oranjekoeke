@@ -1,18 +1,27 @@
 <?php
 
-namespace FryskeOranjekoeke\View\Partials;
+namespace FryskeOranjekoeke\Partial;
 
-use \FryskeOranjekoeke\View\View as View;
+use FryskeOranjekoeke\Partial\UrlBuilder;
 
 // @TODO Docs
 class HtmlTags extends Partial
 {
+    private $UrlBuilder = null;
+
     protected $templates = [
         'css'    => '<link href="$url" rel="stylesheet" type="text/css" $attributes>',
         'script' => '<script src="$url" type="text/javascript" $attributes></script>',
         'img'    => '<img src="$url" $attributes></img>',
         'attr'   => '$name="$value"'
     ];
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->UrlBuilder = new UrlBuilder();
+    }
 
     public function getTemplate(string $name): ?string
     {
@@ -21,20 +30,11 @@ class HtmlTags extends Partial
 
     public function getUrl(string $type, string $name, bool $addSuffix = true): string
     {
+        // Return directly if External URL.
         if (strpos($name, 'http') !== false) {
             return $name;
         }
-
-        if ($type === 'img') {
-            $extension = (pathinfo($name)['extension'] ?? null);
-            if ($extension === null) {
-                $name .= ('.png');
-            }
-        }
-
-        $suffix = ($addSuffix) ? ('.' . $type) : '';
-        $location = (strpos($name, 'vendor') !== false) ? ($name . $suffix) : ($type . '/' . $name . $suffix);
-        return (ASSETS . $location);
+        return $this->UrlBuilder->buildAssetUrl($type, $name, $addSuffix);
     }
 
     public function prepareAttributes(array $attributes): string
@@ -58,11 +58,6 @@ class HtmlTags extends Partial
             '$url'        => $url,
             '$attributes' => $attributes
         ]);
-    }
-
-    public function __construct(View $view)
-    {
-        parent::__construct($view);
     }
 
     public function css($name, array $attributes = [])
