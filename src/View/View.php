@@ -46,7 +46,17 @@ class View
      *
      * @var array
      */
-    protected $partials = [];
+    protected $partials = [
+        'Content',
+        'UrlBuilder',
+        'HtmlTags'
+    ];
+
+    public function __construct()
+    {
+        // Load the required partials for this object to work..
+        $this->loadPartials();
+    }
 
     public function getLayoutPath(string $filename = null): string
     {
@@ -60,13 +70,14 @@ class View
     /**
      * @throws InvalidArgumentException When no File/View could be found which matches the parameter.
      */
-    public function setLayout(string $name)
+    public function setLayout(string $name): self
     {
         if (!is_file($this->getLayoutPath($name))) {
             throw new \InvalidArgumentException('Layout File not found. Given path is: ' . $name);
         }
 
         $this->layout = $name;
+        return $this;
     }
 
     public function getViewPath(string $parent = null, string $filename = null): ?string
@@ -93,7 +104,7 @@ class View
      *
      * @throws InvalidArgumentException When no File/View could be found which matches the parameters.
      */
-    public function setView(string $parent, string $name = null, bool $validate = true)
+    public function setView(string $parent, string $name = null, bool $validate = true): self
     {
         // No View.
         if (!$parent && $name === null) {
@@ -107,11 +118,17 @@ class View
 
         $this->parent = $parent;
         $this->view   = $name;
+        return $this;
+    }
+
+    public function getPartials(): array
+    {
+        return $this->partials;
     }
 
     public function getPartialPath(string $name)
     {
-        return (FRYSKE_ORANJEKOEKE . DS . 'View' . DS . 'Partials' . DS . $name . '.php');
+        return (FRYSKE_ORANJEKOEKE . DS . 'Partial' . DS . $name . '.php');
     }
 
     /**
@@ -134,7 +151,7 @@ class View
             throw new \InvalidArgumentException('Partial File not found. Given Partial is: ' . $name);
         }
 
-        $partial = strtr('FryskeOranjekoeke\View\Partials\$partial', [
+        $partial = strtr('FryskeOranjekoeke\Partial\$partial', [
             '$partial' => $name
         ]);
         $this->partials[$name] = new $partial($this);
@@ -143,19 +160,19 @@ class View
     /**
      * Sets a new data entry that will be passed on to the view.
      *
-     * @param string     $name The name that this variable will have in the view.
+     * @param mixed      $name The name that this variable will have in the view.
      * @param mixed|null $data The data to set.
      */
-    public function setData(string $name, $data = null)
+    public function setData($name, $data = null): self
     {
-        $this->data[$name] = $data;
-    }
-
-    public function __construct()
-    {
-        // Load the required partials for this object to work..
-        $this->setPartial('Content');
-        $this->setPartial('HtmlTags');
+        $data = $name;
+        if (is_string($name) && $data === null) {
+            $data = [$name => $data];
+        }
+        foreach ($data as $n => $d) {
+            $this->data[$n] = $d;
+        }
+        return $this;
     }
 
     /**
@@ -168,6 +185,12 @@ class View
 
         $content = $this->partials['Content']->parseContentBlocks($layout, $view);
         echo $content;
+    }
+
+    public function include(string $name)
+    {
+        $filepath = (VIEWS . DS . 'Includes' . DS . $name . '.php');
+        return $this->getRequireContents($filepath);
     }
 
     /**
@@ -199,5 +222,19 @@ class View
         require $filepath;
         // Get the output buffer and remove it.
         return ob_get_clean();
+    }
+
+    /**
+     * Wrapper Function to be able to load all the Partials from @see Controller::models.
+     *
+     * @uses Controller::setPartial To be able to load a Single Partial.
+     *
+     * @return void
+     */
+    protected function loadPartials(): void
+    {
+        foreach ($this->getPartials() as $name) {
+            $this->setPartial($name);
+        }
     }
 }

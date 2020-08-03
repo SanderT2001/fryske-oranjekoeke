@@ -1,0 +1,34 @@
+{
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "sandert2001/fryske-oranjekoeke",
+                "version": "0.0.3",
+                "type": "fryske-oranjekoeke",
+                "source": {
+                    "url": "https://github.com/SanderT2001/fryske-oranjekoeke",
+                    "type": "git",
+                    "reference": "v0.2"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "sandert2001/pdohelper",
+                "version": "1.0.0",
+                "type": "pdohelper",
+                "source": {
+                    "url": "https://github.com/SanderT2001/PDOHelper/",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
+        }
+    ],
+    "require": {
+        "sandert2001/fryske-oranjekoeke": "^0.0.3",
+        "sandert2001/pdohelper": "^1"
+    }
+}

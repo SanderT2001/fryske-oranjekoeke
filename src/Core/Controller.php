@@ -32,6 +32,24 @@ class Controller
      */
     protected $models = [];
 
+    /**
+     * Collection of Classes containing Logic that will be available to use in the Controllers.
+     *   > Key:   The name of the Partial as how it will be callable in the Controllers.
+     *   > Value: The Partial Class itself.
+     *
+     * @var array
+     */
+    protected $partials = [];
+
+    public function __construct()
+    {
+        // Load all the Models for this Controller.
+        $this->loadModels();
+
+        // Load all the Partials for this Controller.
+        $this->loadPartials();
+    }
+
     public function getRequest(): RequestObject
     {
         return $this->request;
@@ -53,7 +71,12 @@ class Controller
 
     public function getView(): View
     {
+        if ($this->view === null) {
+            $this->view = new View();
+        }
+
         return $this->view;
+
     }
 
     public function setView(View $view)
@@ -64,12 +87,6 @@ class Controller
     public function getModels(): array
     {
         return $this->models;
-    }
-
-    public function __construct()
-    {
-        // Load all the Models for this Controller.
-        $this->loadModels();
     }
 
     /**
@@ -96,5 +113,57 @@ class Controller
     public function loadModel(string $name): void
     {
         $this->{$name} = get_app_class('model', $name);
+    }
+
+    public function getPartials(): array
+    {
+        return $this->partials;
+    }
+
+    public function getPartialPath(string $name)
+    {
+        return (FRYSKE_ORANJEKOEKE . DS . 'Partial' . DS . $name . '.php');
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function getPartial(string $name)
+    {
+        if (!isset($this->partials[$name])) {
+            throw new \InvalidArgumentException('Partial not Loaded. Given Partial is: ' . $name);
+        }
+        return $this->partials[$name];
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function setPartial(string $name)
+    {
+        if (!is_file($this->getPartialPath($name))) {
+            throw new \InvalidArgumentException('Partial File not found. Given Partial is: ' . $name);
+        }
+
+        $partial = strtr('FryskeOranjekoeke\Partial\$partial', [
+            '$partial' => $name
+        ]);
+        $partialInstance = new $partial($this);
+        $this->partials[$name] = $partialInstance;
+        $this->{$name} = $partialInstance;
+    }
+
+    /**
+     * Wrapper Function to be able to load all the Partials from @see Controller::models.
+     *
+     * @uses Controller::setPartial To be able to load a Single Partial.
+     *
+     * @return void
+     */
+    protected function loadPartials(): void
+    {
+        foreach ($this->getPartials() as $name) {
+            $this->setPartial($name);
+        }
     }
 }

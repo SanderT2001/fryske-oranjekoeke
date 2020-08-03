@@ -1,12 +1,6 @@
 # Fryske Oranjekoeke
 The simple MVC PHP Framework.
 
-## Authors | Contributors
-* Sander Tuinstra - [SanderT2001](https://github.com/SanderT2001)
-* Yvar Nanlohij   - [Yvar-School](https://github.com/Yvar-School)
-* Allart de Jong  - [allartdo](https://github.com/allartdo)
-* Justin Rijsdijk - [justinrijsdijk](https://github.com/justinrijsdijk)
-
 ## Build with
 * NGINX 1.16
 * PHP 7.3.11

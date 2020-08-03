@@ -60,6 +60,15 @@ class ApiResponse
      */
     protected $responseData = null;
 
+    public function __construct(array $data, int $code = 200)
+    {
+        $this->setResponseData($data);
+        $this->setStatus($code);
+
+        $this->setHeaders($code);
+        $this->output();
+    }
+
     /**
      * Gets the Array containing the Status Request information.
      */
@@ -114,15 +123,6 @@ class ApiResponse
     public function setResponseData(array $data): void
     {
         $this->responseData = $data;
-    }
-
-    public function __construct(array $data, int $code = 200)
-    {
-        $this->setResponseData($data);
-        $this->setStatus($code);
-
-        $this->setHeaders($code);
-        $this->output();
     }
 
     /**

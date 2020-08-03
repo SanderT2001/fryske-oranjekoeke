@@ -4,5 +4,5 @@
  */
 ?>
 <main id="page-content">
-    <?= $this->Content->placeholderContentBlock('main_content'); ?>
+    <?= $this->Content->placeholder('main_content'); ?>
 </main>

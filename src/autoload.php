@@ -49,7 +49,8 @@ spl_autoload_register(function(string $className): void
             break;
 
         default:
-            return;
+            $classPath .= VENDORS . DS . 'sandert2001' . DS . $className;
+            break;
     }
     $classPath = ($classPath . '.php');
 

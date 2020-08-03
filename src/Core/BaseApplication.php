@@ -5,6 +5,9 @@ namespace FryskeOranjekoeke\Core;
 require_once 'ConvenienceFunctions.php';
 require_once 'MvcFunctions.php';
 require_once FRYSKE_ORANJEKOEKE . DS . 'autoload.php';
+require_once FRYSKE_ORANJEKOEKE . DS . 'exception_handler.php';
+
+use FryskeOranjekoeke\Core\RequestObject;
 
 /**
  * The Class that does it all.
@@ -22,26 +25,6 @@ class BaseApplication
      * @var Controller
      */
     protected $controller = null;
-
-    public function getRequest(): RequestObject
-    {
-        return $this->request;
-    }
-
-    public function setRequest(RequestObject $request)
-    {
-        $this->request = $request;
-    }
-
-    public function getController(): Controller
-    {
-        return $this->controller;
-    }
-
-    protected function setController(Controller $controller)
-    {
-        $this->controller = $controller;
-    }
 
     /**
      * Handles the whole request from Controller to View.
@@ -69,6 +52,26 @@ class BaseApplication
             // Render the view
             $this->getController()->getView()->render();
         }
+    }
+
+    public function getRequest(): RequestObject
+    {
+        return $this->request;
+    }
+
+    public function setRequest(RequestObject $request)
+    {
+        $this->request = $request;
+    }
+
+    public function getController(): Controller
+    {
+        return $this->controller;
+    }
+
+    protected function setController(Controller $controller)
+    {
+        $this->controller = $controller;
     }
 
     /**
