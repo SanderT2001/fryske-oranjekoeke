@@ -5,9 +5,6 @@
 
         <!-- Stylesheets -->
         <?= $this->HtmlTags->css('error'); ?>
-
-        <!-- Javascript -->
-        <? // <?= $this->include('scripts'); ?>
     </head>
 
     <body>

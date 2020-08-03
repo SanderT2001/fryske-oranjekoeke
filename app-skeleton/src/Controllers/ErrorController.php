@@ -16,7 +16,7 @@ class ErrorController extends AppController
         parent::beforeCall();
     }
 
-    public function handleException(\Exception $e)
+    public function handleException($e)
     {
         $this->getView()
              ->setView('Error', 'exception')

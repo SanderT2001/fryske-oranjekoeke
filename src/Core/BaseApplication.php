@@ -7,6 +7,8 @@ require_once 'MvcFunctions.php';
 require_once FRYSKE_ORANJEKOEKE . DS . 'autoload.php';
 require_once FRYSKE_ORANJEKOEKE . DS . 'exception_handler.php';
 
+use FryskeOranjekoeke\Core\RequestObject;
+
 /**
  * The Class that does it all.
  *

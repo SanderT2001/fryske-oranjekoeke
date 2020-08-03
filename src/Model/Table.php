@@ -2,28 +2,11 @@
 
 namespace FryskeOranjekoeke\Model;
 
-use FryskeOranjekoeke\Model\PDOConnection;
+use pdohelper\PDOHelper;
 
-/**
- * The Base Table with some convenience functions.
- *
- * @author Sander Tuinstra <sandert2001@hotmail.com>
- */
-class Table extends PDOConnection
+// @TODO Update docs
+class Table extends PDOHelper
 {
-    /**
-     * The name of the Table.
-     *
-     * @var string
-     */
-    protected $table = null;
-
-    /**
-     * @var array
-     */
-    protected $magicSelectConditions = [
-    ];
-
     /**
      * The Entity connected with the Table.
      *
@@ -34,15 +17,13 @@ class Table extends PDOConnection
     /**
      * @var array
      */
-    protected $relationships = [
-    ];
+    //protected $relationships = [];
 
     public function __construct()
     {
         parent::__construct(
-            APP_CONFIG['database']['name'],
-            $this->getTable(),
             APP_CONFIG['database']['host'],
+            APP_CONFIG['database']['name'],
             APP_CONFIG['database']['username'],
             APP_CONFIG['database']['password'],
             APP_CONFIG['database']['table_prefix']
@@ -51,30 +32,15 @@ class Table extends PDOConnection
         // Set Entity if not given already.
         if ($this->getTable() !== null) {
             $this->setTable($this->getTable());
+            // @TODO (Sander) Pluralize
+            $this->setEntity('Test');
         }
 
+        /**
         foreach ($this->getRelationships() as $tableName => $relSettings) {
             $this->{$tableName} = get_app_class('model', $tableName);
         }
-    }
-
-    public function getTable(): ?string
-    {
-        return $this->table;
-    }
-
-    public function setTable(string $name): void
-    {
-        $this->table = $name;
-
-        // Plural to Singular.
-        $entity = rtrim($name, 's');
-        $this->setEntity(ucfirst($entity));
-    }
-
-    public function getMagicSelectConditions(): array
-    {
-        return $this->magicSelectConditions;
+         */
     }
 
     public function getEntity(): ?Entity
@@ -88,10 +54,12 @@ class Table extends PDOConnection
         $this->setEntityPath(get_app_class('entity', $entity, true));
     }
 
+    /**
     public function getRelationships(): array
     {
         return $this->relationships;
     }
+     */
 
     /**
      * Gets a single record by its @param id (Primary Key).
@@ -102,79 +70,80 @@ class Table extends PDOConnection
      */
     public function get(int $id): ?Entity
     {
-        $conditions = [
-            'WHERE' => [
-                'id' => $id
-            ]
-        ];
-        $conditions = $this->mergeMagicSelectConditions($conditions);
-        $row = $this->select($conditions);
-        return ($row[key($row)] ?? null);
+        $query = $this->getBuilder()
+                      ->select()
+                      ->columns('*')
+                      ->where([
+                          'id' => $id
+                      ])
+                      ->getQuery();
+
+        $result = $this->execute($query);
+        $result = $this->afterSelect($result);
+        return $result[key($result)] ?? null;
     }
 
     /**
-     * Gets all the active records.
-     *
-     * @return array
+     * Convenience function for getting all the records from the table.
      */
     public function getAll(): array
     {
-        return $this->select($this->getMagicSelectConditions());
+        $query = $this->getBuilder()
+                      ->select()
+                      ->columns('*')
+                      ->getQuery();
+
+        $result = $this->execute($query);
+        $result = $this->afterSelect($result);
+        return $result;
     }
 
-    public function select(array $conditions): array
+    public function add($entities): bool
     {
-        $results = parent::select($conditions);
+        if (is_object($entities))
+            $entities = [$entities];
 
-        // No relations present to add? Then return early.
-        if ($this->getRelationships() === []) {
-            return $results;
-        }
-
-        foreach ($results as $id => $data) {
-            foreach ($this->getRelationships() as $tableName => $relSettings) {
-                $selectConditions = $this->{$tableName}->getMagicSelectConditions();
-                $selectConditions['WHERE'] = array_merge(($selectConditions['WHERE'] ?? []), [
-                    'id' => $data->{$relSettings['relationship']['foreignKey']}
-                ]);
-
-                $relationResults = $this->{$tableName}->select($selectConditions);
-                $results[$id]->{$tableName} = $relationResults;
-            }
-        }
-        return $this->afterSelect($results);
-    }
-
-    public function add(Entity $entity): bool
-    {
-        return $this->insert($this->beforeSave($entity));
-    }
-
-    public function addMultiple(array $entities): bool
-    {
         $saveData = [];
-        foreach ($entities as $entity) {
+        foreach ($entities as $key => $entity) {
             if ($entity instanceof Entity === false) {
                 continue;
             }
 
-            $saveData[] = $this->beforeSave($entity);
+            $saveData[] = $this->prepareSave($entity);
         }
 
         if ($saveData === []) {
             return true;
         }
-        return $this->insertMultiple($saveData);
+
+        $query = $this->getBuilder()
+                      ->insert($saveData)
+                      ->getQuery();
+        return $this->execute($query);
     }
 
     public function edit(Entity $entity): bool
     {
-        return $this->update($entity->getId(), $this->beforeSave($entity));
+        $saveData = $this->prepareSave($entity);
+
+        $query = $this->getBuilder()
+                      ->update($saveData)
+                      ->where([
+                          'id' => $entity->getId()
+                      ])
+                      ->getQuery();
+        return $this->execute($query);
     }
 
     public function remove(int $id): bool
     {
-        return $this->delete(['id' => $id]);
+        $query = $this->getBuilder()
+                      ->delete()
+                      ->where([
+                          'id' => $id
+                      ])
+                      ->getQuery();
+        return $this->execute($query);
     }
 
     public function getErrors(Entity $target): array
@@ -194,25 +163,15 @@ class Table extends PDOConnection
         return $errors;
     }
 
-    protected function beforeSave(Entity $entity): array
+    protected function prepareSave(Entity $entity): array
     {
         if (!empty($this->getErrors($entity))) {
             return [];
         }
         $saveArray = (array) $entity;
         $saveArray = $this->stripSystemKeys($saveArray);
-        $saveArray = $this->stripRelationships($saveArray);
+        //$saveArray = $this->stripRelationships($saveArray);
         return $saveArray;
-    }
-
-    protected function mergeMagicSelectConditions(array $conditions): array
-    {
-        foreach ($this->getMagicSelectConditions() as $rule => $value) {
-            if (isset($conditions[$rule])) {
-                $conditions[$rule] = array_merge($conditions[$rule], $value);
-            }
-        }
-        return $conditions;
     }
 
     /**
@@ -235,6 +194,7 @@ class Table extends PDOConnection
         return $entity;
     }
 
+    /**
     protected function stripRelationships(array $entity): array
     {
         foreach ($this->getRelationships() as $tableName => $relSettings) {
@@ -242,8 +202,8 @@ class Table extends PDOConnection
         }
         return $entity;
     }
+     */
 
-    // @TODO (Sander) Docs
     protected function unsetRuntimeProperties(array $rows): array
     {
         foreach ($rows as &$row) {
