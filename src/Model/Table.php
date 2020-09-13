@@ -12,12 +12,7 @@ class Table extends PDOHelper
      *
      * @var Entity
      */
-    private $entity = null;
-
-    /**
-     * @var array
-     */
-    //protected $relationships = [];
+    protected $entity = null;
 
     public function __construct()
     {
@@ -29,18 +24,21 @@ class Table extends PDOHelper
             APP_CONFIG['database']['table_prefix']
         );
 
-        // Set Entity if not given already.
-        if ($this->getTable() !== null) {
+        $this->setDebug(APP_CONFIG['runtime']['debug']);
+
+        // Set the Table Name based on the Class Name if no name is set
+        if ($this->getTable() === null) {
+            // @TODO (Sander) Convenience/MVC Function?
+            $classPath = explode('\\', get_class($this));
+            $className = $classPath[count($classPath)-1];
+            $this->setTable(strtolower($className));
+        } else if (is_string($this->getTable())) {
             $this->setTable($this->getTable());
-            // @TODO (Sander) Pluralize
-            $this->setEntity('Test');
         }
 
-        /**
-        foreach ($this->getRelationships() as $tableName => $relSettings) {
-            $this->{$tableName} = get_app_class('model', $tableName);
-        }
-         */
+        // Convert Entity name to the actual Entity Class
+        if (is_string($this->entity))
+            $this->setEntity($this->entity);
     }
 
     public function getEntity(): ?Entity
@@ -53,13 +51,6 @@ class Table extends PDOHelper
         $this->entity = get_app_class('entity', $entity);
         $this->setEntityPath(get_app_class('entity', $entity, true));
     }
-
-    /**
-    public function getRelationships(): array
-    {
-        return $this->relationships;
-    }
-     */
 
     /**
      * Gets a single record by its @param id (Primary Key).
@@ -170,7 +161,6 @@ class Table extends PDOHelper
         }
         $saveArray = (array) $entity;
         $saveArray = $this->stripSystemKeys($saveArray);
-        //$saveArray = $this->stripRelationships($saveArray);
         return $saveArray;
     }
 
@@ -193,16 +183,6 @@ class Table extends PDOHelper
         unset($entity['types']);
         return $entity;
     }
-
-    /**
-    protected function stripRelationships(array $entity): array
-    {
-        foreach ($this->getRelationships() as $tableName => $relSettings) {
-            unset($entity[$tableName]);
-        }
-        return $entity;
-    }
-     */
 
     protected function unsetRuntimeProperties(array $rows): array
     {

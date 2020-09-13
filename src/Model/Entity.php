@@ -15,33 +15,17 @@ class Entity
     public $types = [
     ];
 
-    public $id = 0;
-
     public function getRequired(): array
     {
         return $this->required ?? [];
     }
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function setId(int $id): void
-    {
-        $this->id = $id;
-    }
-
-    public function patch(\stdClass $data): bool
+    public function patch(\stdClass $data): self
     {
         foreach ($data as $field => $value) {
-            if ($field === 'id') {
-                continue;
-            }
-
             $this->{'set' . ucfirst($field)}($value);
         }
-        return true;
+        return $this;
     }
 
     /**
