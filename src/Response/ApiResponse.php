@@ -50,7 +50,7 @@ class ApiResponse
         return (object) $this->responseBodyStruct;
     }
 
-    public function success(object $data): string
+    public function success($data): string
     {
         $response = $this->getBaseOutput(200);
         $response->data = $data;
