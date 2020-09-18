@@ -140,16 +140,27 @@ class Table extends PDOHelper
     public function getErrors(Entity $target): array
     {
         $errors = [];
-        // Require fresh requirements if not present..
+
+        // Check required properties
         $required = ($target->required ?? (new $target)->required);
-
         foreach ($required as $field) {
-            if (!empty($target->{'get' . ucfirst($field)}())) {
+            if (!empty($target->{'get' . ucfirst($field)}()))
                 continue;
-            }
 
-            // Error
             $errors[$field] = 'Cannot be empty';
+        }
+
+        // Check types
+        $types = ($target->types ?? (new $target)->types);
+        foreach ($types as $field => $expected_type) {
+            $value = $target->{'get' . ucfirst($field)}();
+            if (empty($value))
+                continue;
+
+            if (gettype($value) === $expected_type)
+                continue;
+
+            $errors[$field] = 'Must be of type "' . $expected_type . '", "' . gettype($value) . '" given';
         }
         return $errors;
     }

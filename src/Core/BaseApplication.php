@@ -43,7 +43,11 @@ class BaseApplication
         $this->loadController($this->getRequest()->getDestination()['controller']);
         // BeforeCall function available?
         if (method_exists($this->getController(), 'beforeCall')) {
-            call_user_func_array([$this->getController(), 'beforeCall'], []);
+            $returnValue = call_user_func_array([$this->getController(), 'beforeCall'], []);
+            if (!empty($returnValue)) {
+                echo $returnValue;
+                return;
+            }
         }
         // Call the Requested Action
         $returnValue = call_user_func_array([$this->getController(), $this->request->getDestination()['action']], $this->request->getDestination()['arguments'] ?? []);

@@ -37,6 +37,11 @@ class RequestObject
     protected $method = null;
 
     /**
+     * The ip used to make the Request.
+     */
+    protected $ip = null;
+
+    /**
      * The POST/PUT data that has been send with this Request.
      *
      * @var stdClass
@@ -56,7 +61,6 @@ class RequestObject
         // Determine and set Request Destination.
         $requestedPath = $serverVars['REQUEST_URI'];
         $indexPath     = $serverVars['PHP_SELF'];
-
 
         // index.php is the name of the file containing the Front Controller.
         $root = str_replace('index.php', '', $indexPath);
@@ -83,7 +87,8 @@ class RequestObject
         }
         $this->setHeaders($headers);
 
-        $this->setMethod($serverVars['REQUEST_METHOD']);
+        $this->setMethod($serverVars['REQUEST_METHOD'])
+             ->setIp($serverVars['REMOTE_ADDR']);
 
         // Open in Read Mode.
         $requestDataFile = fopen('php://input', 'r');
@@ -133,9 +138,21 @@ class RequestObject
         return $this->method;
     }
 
-    public function setMethod(string $method): void
+    public function setMethod(string $method): self
     {
         $this->method = $method;
+        return $this;
+    }
+
+    public function getIp(): ?string
+    {
+        return $this->ip;
+    }
+
+    public function setIp(string $ip): self
+    {
+        $this->ip = $ip;
+        return $this;
     }
 
     public function getData(): \stdClass

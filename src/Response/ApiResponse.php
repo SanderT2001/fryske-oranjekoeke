@@ -26,10 +26,12 @@ class ApiResponse
 
     protected $statusMap = [
         200 => 'Success',
+        201 => 'Created',
         400 => 'Bad Request',
         403 => 'Forbidden',
         404 => 'Not Found',
-        405 => 'Method Not Allowed'
+        405 => 'Method Not Allowed',
+        409 => 'Conflict'
     ];
 
     public function getStatus(int $statuscode): array
@@ -57,7 +59,18 @@ class ApiResponse
         return json_encode($response);
     }
 
-    public function error(int $statuscode, string $reason = null): string
+    public function created(): string
+    {
+        $response = $this->getBaseOutput(201);
+
+        $this->setHeaders(201);
+        return json_encode($response);
+    }
+
+    /**
+     * @param mixed|null reason
+     */
+    public function error(int $statuscode, $reason = null): string
     {
         $response = $this->getBaseOutput($statuscode);
         $response->reason = $reason ?? 'Unknown';

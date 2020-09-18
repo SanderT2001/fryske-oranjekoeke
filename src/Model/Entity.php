@@ -17,7 +17,11 @@ class Entity
 
     public function getRequired(): array
     {
-        return $this->required ?? [];
+        $required = $this->required ?? [];
+        foreach ($required as $field_key => $field)
+            if (isset($this->types[$field]))
+                $required[$field_key] = $required[$field_key] . ' ('.$this->types[$field].')';
+        return $required;
     }
 
     public function patch(\stdClass $data): self
@@ -71,7 +75,7 @@ class Entity
                     return;
                 }
                 if (isset($params[0]) && (isset($this->types[$targetVariable])) && (gettype($params[0]) !== $this->types[$targetVariable])) {
-                    throw new \TypeError();
+                    throw new \TypeError('Invalid type, expected "' . $this->types[$targetVariable] . '". "' . gettype($params[0]) . '" Given.');
                 }
                 $this->{$targetVariable} = ($params[0] ?? null);
                 break;
