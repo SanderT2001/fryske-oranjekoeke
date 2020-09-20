@@ -34,7 +34,8 @@ class BaseApplication
     public function __construct()
     {
         // Make config globally available.
-        define('APP_CONFIG', parse_ini_file(CONFIG . DS . 'config.ini', true));
+        if (defined('APP_CONFIG') === false)
+            define('APP_CONFIG', require_once CONFIG . DS . 'config.php');
 
         // Create the base Request Object.
         $this->setRequest(new RequestObject($_SERVER, require_once (CONFIG . DS . 'routes.php')));
@@ -43,15 +44,20 @@ class BaseApplication
         $this->loadController($this->getRequest()->getDestination()['controller']);
         // BeforeCall function available?
         if (method_exists($this->getController(), 'beforeCall')) {
-            call_user_func_array([$this->getController(), 'beforeCall'], []);
+            $returnValue = call_user_func_array([$this->getController(), 'beforeCall'], []);
+            if (!empty($returnValue)) {
+                echo $returnValue;
+                return;
+            }
         }
         // Call the Requested Action
-        call_user_func_array([$this->getController(), $this->request->getDestination()['action']], $this->request->getDestination()['arguments'] ?? []);
+        $returnValue = call_user_func_array([$this->getController(), $this->request->getDestination()['action']], $this->request->getDestination()['arguments'] ?? []);
 
-        if ((bool) APP_CONFIG['runtime']['is_api'] === false) {
+        if ((bool) APP_CONFIG['runtime']['is_api'] === false)
             // Render the view
             $this->getController()->getView()->render();
-        }
+        else
+            echo $returnValue;
     }
 
     public function getRequest(): RequestObject

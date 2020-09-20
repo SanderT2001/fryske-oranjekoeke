@@ -5,124 +5,109 @@ namespace FryskeOranjekoeke\Response;
 /**
  * Returns a JSON API Response.
  *
- * @TODO Moet netter
  * @author Sander Tuinstra <sandert2001@hotmail.com>
- *
- * @return application/json Returns an JSON-Object containing the data to output.
- *         {
- *             "Success": @var $string,
- *             "URN": @var string,
- *             "Method": @var string,
- *             "Status": {
- *                 "Code": @var int,
- *                 "Msg": @var string
- *             }
- *             "Data": @var array
- *         }
  */
 class ApiResponse
 {
-    /**
-     * @var array
-     */
-    protected $baseResponseBody = [
-        'Success' => true,
-        'URN'     => null,
-        'Method'  => null,
-        'Status'  => [
-            'Code' => 200,
-            'Msg'  => null
+    protected $responseBodyStruct = [
+        'urn'     => null,
+        'method'  => null,
+        'success' => true,
+        'status'  => [
+            'code' => 200,
+            'msg'  => null
         ],
-        'Data'    => [
-        ]
+        /**
+         * Based on success or error:
+        'reason' => null,
+        'data' => []
+         */
     ];
 
-    /**
-     * @var int
-     */
-    protected $status = 200;
-
-    /**
-     * @var array
-     */
     protected $statusMap = [
         200 => 'Success',
+        201 => 'Created',
+        204 => 'No Content',
         400 => 'Bad Request',
         403 => 'Forbidden',
         404 => 'Not Found',
-        405 => 'Method Not Allowed'
+        405 => 'Method Not Allowed',
+        409 => 'Conflict'
     ];
 
-    /**
-     * The data to return.
-     *
-     * @var array
-     */
-    protected $responseData = null;
-
-    public function __construct(array $data, int $code = 200)
+    public function getStatus(int $statuscode): array
     {
-        $this->setResponseData($data);
-        $this->setStatus($code);
-
-        $this->setHeaders($code);
-        $this->output();
-    }
-
-    /**
-     * Gets the Array containing the Status Request information.
-     */
-    public function getStatusArray(int $status = 200): array
-    {
-        if (empty($this->statusMap[$status])) {
+        if (empty($this->statusMap[$statuscode]))
             throw new \InvalidArgumentException('The given status code is invalid.');
-        }
 
         return [
-            'Code' => $status,
-            'Msg'  => $this->statusMap[$status]
+            'code' => $statuscode,
+            'msg'  => $this->statusMap[$statuscode]
         ];
     }
 
-    public function setStatus(int $code): void
+    public function getResponseBodyStruct(): object
     {
-        $this->status = $code;
+        return (object) $this->responseBodyStruct;
     }
 
-    public function getStatus(): int
+    public function success($data): string
     {
-        return $this->status;
+        $response = $this->getBaseOutput(200);
+        $response->data = $data;
+
+        $this->setHeaders(200);
+        return json_encode($response);
+    }
+
+    public function created(): string
+    {
+        $response = $this->getBaseOutput(201);
+
+        $this->setHeaders(201);
+        return json_encode($response);
+    }
+
+    public function updated(): string
+    {
+        $response = $this->getBaseOutput(204);
+
+        $this->setHeaders(204);
+        return json_encode($response);
+    }
+
+    public function removed(): string
+    {
+        $response = $this->getBaseOutput(204);
+
+        $this->setHeaders(204);
+        return json_encode($response);
     }
 
     /**
-     * Gets the Response Body that will be returned with this Response.
+     * @param mixed|null reason
      */
-    public function getResponseBody(): array
+    public function error(int $statuscode, $reason = null): string
     {
-        $response          = (object) $this->baseResponseBody;
-        $response->Success = ($this->getStatus() === 200);
-        $response->URN     = $_SERVER['REQUEST_URI'];
-        $response->Method  = $_SERVER['REQUEST_METHOD'];
-        $response->Status  = $this->getStatusArray($this->getStatus());
-        $response->Data    = $this->getResponseData();
+        $response = $this->getBaseOutput($statuscode);
+        if (!empty($reason))
+            $response->reason = $reason;
 
-        return (array) $response;
+        $this->setHeaders($statuscode);
+        return json_encode($response);
     }
 
-    public function getResponseData(): array
+    protected function getBaseOutput(int $statuscode): object
     {
-        $firstElement = ($this->responseData[key($this->responseData)] ?? null);
-        if (!is_object($firstElement)) {
-            return $this->responseData;
-        }
-        $reflection = new \ReflectionClass($firstElement);
-        $shortNamePlural = ($reflection->getShortName());
-        return [$shortNamePlural => $this->responseData];
-    }
+        $response = $this->getResponseBodyStruct();
+        $response->urn     = $_SERVER['REQUEST_URI'];
+        $response->success = $statuscode === 200;
+        $response->method  = $_SERVER['REQUEST_METHOD'];
 
-    public function setResponseData(array $data): void
-    {
-        $this->responseData = $data;
+        $status_struct = $this->getStatus($statuscode);
+        $response->status['code'] = $status_struct['code'];
+        $response->status['msg'] = $status_struct['msg'];
+        return $response;
     }
 
     /**
@@ -133,14 +118,5 @@ class ApiResponse
         header('Content-Type: application/json');
         header('Access-Control-Allow-Methods: GET, PUT, POST, PATCH, DELETE, OPTIONS');
         http_response_code($statuscode);
-    }
-
-    /**
-     * Outputs the @var ApiResponse::responseData as JSON.
-     */
-    protected function output()
-    {
-        echo json_encode($this->getResponseBody());
-        die();
     }
 }

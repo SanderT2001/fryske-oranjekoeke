@@ -9,5 +9,6 @@ class AppController extends Controller
 {
     public function beforeCall()
     {
+        parent::beforeCall();
     }
 }

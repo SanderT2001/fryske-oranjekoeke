@@ -89,6 +89,8 @@ class Controller
         return $this->models;
     }
 
+    public function beforeCall() { }
+
     /**
      * Wrapper Function to be able to load all the Models from @see Controller::models.
      *

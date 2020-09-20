@@ -12,12 +12,14 @@ class Table extends PDOHelper
      *
      * @var Entity
      */
-    private $entity = null;
+    protected $entity = null;
 
     /**
-     * @var array
+     * The name of the Primary Key field in the Table.
+     *
+     * @var string
      */
-    //protected $relationships = [];
+    protected $pk = 'id';
 
     public function __construct()
     {
@@ -29,18 +31,21 @@ class Table extends PDOHelper
             APP_CONFIG['database']['table_prefix']
         );
 
-        // Set Entity if not given already.
-        if ($this->getTable() !== null) {
+        $this->setDebug(APP_CONFIG['runtime']['debug']);
+
+        // Set the Table Name based on the Class Name if no name is set
+        if ($this->getTable() === null) {
+            // @TODO (Sander) Convenience/MVC Function?
+            $classPath = explode('\\', get_class($this));
+            $className = $classPath[count($classPath)-1];
+            $this->setTable(strtolower($className));
+        } else if (is_string($this->getTable())) {
             $this->setTable($this->getTable());
-            // @TODO (Sander) Pluralize
-            $this->setEntity('Test');
         }
 
-        /**
-        foreach ($this->getRelationships() as $tableName => $relSettings) {
-            $this->{$tableName} = get_app_class('model', $tableName);
-        }
-         */
+        // Convert Entity name to the actual Entity Class
+        if (is_string($this->entity))
+            $this->setEntity($this->entity);
     }
 
     public function getEntity(): ?Entity
@@ -54,12 +59,16 @@ class Table extends PDOHelper
         $this->setEntityPath(get_app_class('entity', $entity, true));
     }
 
-    /**
-    public function getRelationships(): array
+    public function getPK(): string
     {
-        return $this->relationships;
+        return $this->pk;
     }
-     */
+
+    public function setPK(string $pk): self
+    {
+        $this->pk = $pk;
+        return $this;
+    }
 
     /**
      * Gets a single record by its @param id (Primary Key).
@@ -68,14 +77,17 @@ class Table extends PDOHelper
      *
      * @return Entity|null
      */
-    public function get(int $id): ?Entity
+    public function get(int $id, array $additional_conditions = []): ?Entity
     {
+        $conditions = [
+            $this->getPK() => $id
+        ];
+        $conditions = array_merge($conditions, $additional_conditions);
+
         $query = $this->getBuilder()
                       ->select()
                       ->columns('*')
-                      ->where([
-                          'id' => $id
-                      ])
+                      ->where($conditions)
                       ->getQuery();
 
         $result = $this->execute($query);
@@ -86,11 +98,12 @@ class Table extends PDOHelper
     /**
      * Convenience function for getting all the records from the table.
      */
-    public function getAll(): array
+    public function getAll(array $conditions = []): array
     {
         $query = $this->getBuilder()
                       ->select()
                       ->columns('*')
+                      ->where($conditions)
                       ->getQuery();
 
         $result = $this->execute($query);
@@ -129,7 +142,7 @@ class Table extends PDOHelper
         $query = $this->getBuilder()
                       ->update($saveData)
                       ->where([
-                          'id' => $entity->getId()
+                          $this->getPK() => $entity->getId()
                       ])
                       ->getQuery();
         return $this->execute($query);
@@ -140,7 +153,7 @@ class Table extends PDOHelper
         $query = $this->getBuilder()
                       ->delete()
                       ->where([
-                          'id' => $id
+                          $this->getPK() => $id
                       ])
                       ->getQuery();
         return $this->execute($query);
@@ -149,16 +162,27 @@ class Table extends PDOHelper
     public function getErrors(Entity $target): array
     {
         $errors = [];
-        // Require fresh requirements if not present..
+
+        // Check required properties
         $required = ($target->required ?? (new $target)->required);
-
         foreach ($required as $field) {
-            if (!empty($target->{'get' . ucfirst($field)}())) {
+            if (!empty($target->{'get' . ucfirst($field)}()))
                 continue;
-            }
 
-            // Error
             $errors[$field] = 'Cannot be empty';
+        }
+
+        // Check types
+        $types = ($target->types ?? (new $target)->types);
+        foreach ($types as $field => $expected_type) {
+            $value = $target->{'get' . ucfirst($field)}();
+            if (empty($value))
+                continue;
+
+            if (gettype($value) === $expected_type)
+                continue;
+
+            $errors[$field] = 'Must be of type "' . $expected_type . '", "' . gettype($value) . '" given';
         }
         return $errors;
     }
@@ -170,7 +194,6 @@ class Table extends PDOHelper
         }
         $saveArray = (array) $entity;
         $saveArray = $this->stripSystemKeys($saveArray);
-        //$saveArray = $this->stripRelationships($saveArray);
         return $saveArray;
     }
 
@@ -193,16 +216,6 @@ class Table extends PDOHelper
         unset($entity['types']);
         return $entity;
     }
-
-    /**
-    protected function stripRelationships(array $entity): array
-    {
-        foreach ($this->getRelationships() as $tableName => $relSettings) {
-            unset($entity[$tableName]);
-        }
-        return $entity;
-    }
-     */
 
     protected function unsetRuntimeProperties(array $rows): array
     {
