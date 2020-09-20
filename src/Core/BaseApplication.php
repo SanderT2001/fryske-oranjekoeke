@@ -34,7 +34,8 @@ class BaseApplication
     public function __construct()
     {
         // Make config globally available.
-        define('APP_CONFIG', require_once CONFIG . DS . 'config.php');
+        if (defined('APP_CONFIG') === false)
+            define('APP_CONFIG', require_once CONFIG . DS . 'config.php');
 
         // Create the base Request Object.
         $this->setRequest(new RequestObject($_SERVER, require_once (CONFIG . DS . 'routes.php')));

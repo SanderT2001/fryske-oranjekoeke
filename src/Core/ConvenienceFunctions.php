@@ -183,3 +183,10 @@ if (!function_exists('trim_multiple')) {
         return $output;
     }
 }
+
+if (!function_exists('emptyobj')) {
+    function empty_obj(object $obj): bool
+    {
+        return empty((array) $obj);
+    }
+}

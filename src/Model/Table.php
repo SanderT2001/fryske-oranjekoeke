@@ -14,6 +14,13 @@ class Table extends PDOHelper
      */
     protected $entity = null;
 
+    /**
+     * The name of the Primary Key field in the Table.
+     *
+     * @var string
+     */
+    protected $pk = 'id';
+
     public function __construct()
     {
         parent::__construct(
@@ -52,6 +59,17 @@ class Table extends PDOHelper
         $this->setEntityPath(get_app_class('entity', $entity, true));
     }
 
+    public function getPK(): string
+    {
+        return $this->pk;
+    }
+
+    public function setPK(string $pk): self
+    {
+        $this->pk = $pk;
+        return $this;
+    }
+
     /**
      * Gets a single record by its @param id (Primary Key).
      *
@@ -59,14 +77,17 @@ class Table extends PDOHelper
      *
      * @return Entity|null
      */
-    public function get(int $id): ?Entity
+    public function get(int $id, array $additional_conditions = []): ?Entity
     {
+        $conditions = [
+            $this->getPK() => $id
+        ];
+        $conditions = array_merge($conditions, $additional_conditions);
+
         $query = $this->getBuilder()
                       ->select()
                       ->columns('*')
-                      ->where([
-                          'id' => $id
-                      ])
+                      ->where($conditions)
                       ->getQuery();
 
         $result = $this->execute($query);
@@ -77,11 +98,12 @@ class Table extends PDOHelper
     /**
      * Convenience function for getting all the records from the table.
      */
-    public function getAll(): array
+    public function getAll(array $conditions = []): array
     {
         $query = $this->getBuilder()
                       ->select()
                       ->columns('*')
+                      ->where($conditions)
                       ->getQuery();
 
         $result = $this->execute($query);
@@ -120,7 +142,7 @@ class Table extends PDOHelper
         $query = $this->getBuilder()
                       ->update($saveData)
                       ->where([
-                          'id' => $entity->getId()
+                          $this->getPK() => $entity->getId()
                       ])
                       ->getQuery();
         return $this->execute($query);
@@ -131,7 +153,7 @@ class Table extends PDOHelper
         $query = $this->getBuilder()
                       ->delete()
                       ->where([
-                          'id' => $id
+                          $this->getPK() => $id
                       ])
                       ->getQuery();
         return $this->execute($query);
