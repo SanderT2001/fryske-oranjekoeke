@@ -4,7 +4,6 @@ namespace FryskeOranjekoeke\Partial;
 
 use FryskeOranjekoeke\Partial\UrlBuilder;
 
-// @TODO Docs
 class HtmlTags extends Partial
 {
     private $UrlBuilder = null;
@@ -39,7 +38,6 @@ class HtmlTags extends Partial
 
     public function prepareAttributes(array $attributes): string
     {
-        // @TODO (Sander) eigenlijk moet parseTemplate dit doen.
         $template = $this->getTemplate('attr');
 
         $output = '';
