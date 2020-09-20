@@ -190,3 +190,21 @@ if (!function_exists('emptyobj')) {
         return empty((array) $obj);
     }
 }
+
+if (!function_exists('camelcase2underscore')) {
+    /**
+     * @link https://stackoverflow.com/questions/1993721/how-to-convert-pascalcase-to-pascal-case
+     */
+    function camelcase2underscore(string $input): string
+    {
+        return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $input));
+    }
+}
+
+if (!function_exists('get_class_name')) {
+    function get_class_name($class)
+    {
+        $classPath = explode('\\', get_class($class));
+        return $classPath[count($classPath)-1];
+    }
+}

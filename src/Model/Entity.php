@@ -100,10 +100,8 @@ class Entity
         if (empty($targetVariable)) {
             return null;
         }
-        // When camelcase, the function called will look like this: `getVariable` and the substring from @var $targetVariable
-        //   will then be `Variable`. But because class variables don't start with an capital letter, make the first
-        //   character lowercase: `variable.`
-        $targetVariable = lcfirst($targetVariable);
+
+        $targetVariable = camelcase2underscore($targetVariable);
         return $targetVariable;
     }
 }

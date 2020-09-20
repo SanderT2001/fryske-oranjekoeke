@@ -4,7 +4,6 @@ namespace FryskeOranjekoeke\Model;
 
 use pdohelper\PDOHelper;
 
-// @TODO Update docs
 class Table extends PDOHelper
 {
     /**
@@ -35,10 +34,9 @@ class Table extends PDOHelper
 
         // Set the Table Name based on the Class Name if no name is set
         if ($this->getTable() === null) {
-            // @TODO (Sander) Convenience/MVC Function?
-            $classPath = explode('\\', get_class($this));
-            $className = $classPath[count($classPath)-1];
-            $this->setTable(strtolower($className));
+            $className = get_class_name($this);
+            $className = strtolower($className);
+            $this->setTable($className);
         } else if (is_string($this->getTable())) {
             $this->setTable($this->getTable());
         }
