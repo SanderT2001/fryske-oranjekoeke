@@ -201,6 +201,17 @@ if (!function_exists('camelcase2underscore')) {
     }
 }
 
+if (!function_exists('underscore2camelcase')) {
+    function underscore2camelcase(string $input, bool $capitalizeFirstChar = false): string
+    {
+        $str = str_replace('_', '', ucwords($input, '_'));
+        if ($capitalizeFirstCharacter === false)
+            $str = lcfirst($str);
+
+        return $str;
+    }
+}
+
 if (!function_exists('get_class_name')) {
     function get_class_name($class)
     {

@@ -20,7 +20,7 @@ class Entity
     public function patch(\stdClass $data): self
     {
         foreach ($data as $field => $value) {
-            $this->{'set' . ucfirst($field)}($value);
+            $this->{'set' . underscore2camelcase($field)}($value);
         }
         return $this;
     }
@@ -64,12 +64,9 @@ class Entity
                 // Get the variable that was requested to be set.
                 $targetVariable = $this->getVariableNameFromGetSetFuncName($func);
                 // Only set the variable if its name is know.
-                if ($targetVariable === null) {
+                if ($targetVariable === null)
                     return;
-                }
-                if (isset($params[0]) && (isset($this->types[$targetVariable])) && (gettype($params[0]) !== $this->types[$targetVariable])) {
-                    throw new \TypeError('Invalid type, expected "' . $this->types[$targetVariable] . '". "' . gettype($params[0]) . '" Given.');
-                }
+
                 $this->{$targetVariable} = ($params[0] ?? null);
                 break;
 
