@@ -109,26 +109,12 @@ class Table extends PDOHelper
         return $result;
     }
 
-    public function add($entities): bool
+    public function add($entity): bool
     {
-        if (is_object($entities))
-            $entities = [$entities];
-
-        $saveData = [];
-        foreach ($entities as $key => $entity) {
-            if ($entity instanceof Entity === false) {
-                continue;
-            }
-
-            $saveData[] = $this->prepareSave($entity);
-        }
-
-        if ($saveData === []) {
-            return true;
-        }
+        $saveData = $this->prepareSave($entity);
 
         $query = $this->getBuilder()
-                      ->insert($saveData)
+                      ->insert([$saveData])
                       ->getQuery();
         return $this->execute($query);
     }
@@ -164,24 +150,12 @@ class Table extends PDOHelper
         // Check required properties
         $required = ($target->required ?? (new $target)->required);
         foreach ($required as $field) {
-            if (!empty($target->{'get' . ucfirst($field)}()))
+            if (isset($target->{$field}))
                 continue;
 
-            $errors[$field] = 'Cannot be empty';
+            $errors[$field] = 'Must be set';
         }
 
-        // Check types
-        $types = ($target->types ?? (new $target)->types);
-        foreach ($types as $field => $expected_type) {
-            $value = $target->{'get' . ucfirst($field)}();
-            if (empty($value))
-                continue;
-
-            if (gettype($value) === $expected_type)
-                continue;
-
-            $errors[$field] = 'Must be of type "' . $expected_type . '", "' . gettype($value) . '" given';
-        }
         return $errors;
     }
 
@@ -211,7 +185,6 @@ class Table extends PDOHelper
     protected function stripSystemKeys(array $entity): array
     {
         unset($entity['required']);
-        unset($entity['types']);
         return $entity;
     }
 
@@ -219,7 +192,6 @@ class Table extends PDOHelper
     {
         foreach ($rows as &$row) {
             unset($row->required);
-            unset($row->types);
         }
         return $rows;
     }

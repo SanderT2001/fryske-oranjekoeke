@@ -12,16 +12,9 @@ class Entity
     public $required = [
     ];
 
-    public $types = [
-    ];
-
     public function getRequired(): array
     {
-        $required = $this->required ?? [];
-        foreach ($required as $field_key => $field)
-            if (isset($this->types[$field]))
-                $required[$field_key] = $required[$field_key] . ' ('.$this->types[$field].')';
-        return $required;
+        return $this->required ?? [];
     }
 
     public function patch(\stdClass $data): self
