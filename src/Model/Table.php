@@ -109,9 +109,11 @@ class Table extends PDOHelper
         return $result;
     }
 
-    public function add($entity): bool
+    public function add($entity, $debug = 0): bool
     {
         $saveData = $this->prepareSave($entity);
+        if (empty($saveData))
+            return false;
 
         $query = $this->getBuilder()
                       ->insert([$saveData])
@@ -122,6 +124,8 @@ class Table extends PDOHelper
     public function edit(Entity $entity): bool
     {
         $saveData = $this->prepareSave($entity);
+        if (empty($saveData))
+            return false;
 
         $query = $this->getBuilder()
                       ->update($saveData)
