@@ -6,7 +6,7 @@ return [
         'description' => 'App Description',
         'author' => [
             'name' => 'Sander Tuinstra',
-            'email' => 'sandert2001@hotmail.com'
+            'email' => ''
         ]
     ],
     'database' => [

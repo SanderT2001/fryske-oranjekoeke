@@ -9,7 +9,7 @@
                 "source": {
                     "url": "https://github.com/SanderT2001/fryske-oranjekoeke",
                     "type": "git",
-                    "reference": "v0.2"
+                    "reference": "master"
                 }
             }
         },
@@ -25,10 +25,24 @@
                     "reference": "master"
                 }
             }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "sandert2001/httphelper",
+                "version": "1.0.0",
+                "type": "httphelper",
+                "source": {
+                    "url": "https://github.com/SanderT2001/HttpHelper/",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
         }
     ],
     "require": {
         "sandert2001/fryske-oranjekoeke": "^0.0.3",
-        "sandert2001/pdohelper": "^1"
+        "sandert2001/pdohelper": "^1",
+        "sandert2001/httphelper": "^1"
     }
 }
