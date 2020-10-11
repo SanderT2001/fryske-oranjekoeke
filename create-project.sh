@@ -23,8 +23,8 @@ cd ../../
 # Setup the Skeleton
 cp -R ./vendor/sandert2001/fryske-oranjekoeke/app-skeleton/* ./
 
-# Update config.ini
-sed -i 's/"App Name"/"'$projectname'"/g' ./config/config.ini
-sed -i 's/"Sander Tuinstra"/"'$USER'"/g' ./config/config.ini
+# Update config.php
+sed -i 's/"App Name"/"'$projectname'"/g' ./config/config.php
+sed -i 's/"Sander Tuinstra"/"'$USER'"/g' ./config/config.php
 
 echo "> Done! Have fun!"
