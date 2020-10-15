@@ -32,7 +32,8 @@ class ApiResponse
         403 => 'Forbidden',
         404 => 'Not Found',
         405 => 'Method Not Allowed',
-        409 => 'Conflict'
+        409 => 'Conflict',
+        429 => 'Too Many Requests'
     ];
 
     public function getStatus(int $statuscode): array
@@ -101,7 +102,7 @@ class ApiResponse
     {
         $response = $this->getResponseBodyStruct();
         $response->urn     = $_SERVER['REQUEST_URI'];
-        $response->success = $statuscode === 200;
+        $response->success = $statuscode < 400;
         $response->method  = $_SERVER['REQUEST_METHOD'];
 
         $status_struct = $this->getStatus($statuscode);

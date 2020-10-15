@@ -109,7 +109,7 @@ class View
         // No View.
         if (!$parent && $name === null) {
             $this->parent = $this->view = null;
-            return true;
+            return $this;
         }
 
         if (!is_file($this->getViewPath($parent, $name)) && $validate) {
@@ -147,14 +147,19 @@ class View
      */
     public function setPartial(string $name)
     {
-        if (!is_file($this->getPartialPath($name))) {
-            throw new \InvalidArgumentException('Partial File not found. Given Partial is: ' . $name);
-        }
+        if (explode('.', $name)[0] === 'App') {
+            $name = explode('.', $name)[1];
+            $this->partials[$name] = get_app_class('partial', $name);
+        } else {
+            if (!is_file($this->getPartialPath($name))) {
+                throw new \InvalidArgumentException('Partial File not found. Given Partial is: ' . $name);
+            }
 
-        $partial = strtr('FryskeOranjekoeke\Partial\$partial', [
-            '$partial' => $name
-        ]);
-        $this->partials[$name] = new $partial($this);
+            $partial = strtr('FryskeOranjekoeke\Partial\$partial', [
+                '$partial' => $name
+            ]);
+            $this->partials[$name] = new $partial($this);
+        }
     }
 
     /**

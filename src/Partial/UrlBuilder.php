@@ -37,18 +37,22 @@ class UrlBuilder extends Partial
 
         $suffix = ($typeAsSuffix) ? ('.' . $type) : '';
         $location = (strpos($name, 'vendor') !== false) ? ($name . $suffix) : ($type . DS . $name . $suffix);
+        // Remove duplicate /
+        if ($location[0] === '/' && substr(ASSETS, -1) === '/') {
+            $location = ltrim($location, '/');
+        }
         return (ASSETS . $location);
     }
 
     private function validateControllerAction(string $controller, string $action): void
     {
         if (!class_exists(get_app_class('controller', $controller, true))) {
-            throw new \InvalidArgumentException('Controller does not exist');
+            throw new \InvalidArgumentException('Controller "'.$controller.'" does not exist');
         }
         // Get a new instance of the Controller in order to check if it has the action requested.
-        $controller = get_app_class('controller', $controller);
-        if (!method_exists($controller, $action)) {
-            throw new \InvalidArgumentException('Action does not exist in ' . $controller . 'Controller');
+        $controller_class = get_app_class('controller', $controller);
+        if (!method_exists($controller_class, $action)) {
+            throw new \InvalidArgumentException('Action "'.$action.'" does not exist in ' . $controller . 'Controller');
         }
         return;
     }

@@ -6,6 +6,8 @@ use FryskeOranjekoeke\{
     View\View as View
 };
 
+use FryskeOranjekoeke\Partial\UrlBuilder;
+
 /**
  * The Controller.
  *
@@ -122,11 +124,6 @@ class Controller
         return $this->partials;
     }
 
-    public function getPartialPath(string $name)
-    {
-        return (FRYSKE_ORANJEKOEKE . DS . 'Partial' . DS . $name . '.php');
-    }
-
     /**
      * @throws InvalidArgumentException
      */
@@ -143,7 +140,7 @@ class Controller
      */
     public function setPartial(string $name)
     {
-        if (!is_file($this->getPartialPath($name))) {
+        if (!is_file(FRYSKE_ORANJEKOEKE . DS . 'Partial' . DS . $name . '.php')) {
             throw new \InvalidArgumentException('Partial File not found. Given Partial is: ' . $name);
         }
 
@@ -153,6 +150,17 @@ class Controller
         $partialInstance = new $partial($this);
         $this->partials[$name] = $partialInstance;
         $this->{$name} = $partialInstance;
+    }
+
+    public function redirect(string $url): void
+    {
+        list($controller, $action) = explode('/', $url);
+
+        $redirect_builder = new UrlBuilder();
+        $redirect_url = $redirect_builder->build($controller, $action);
+        // 303: See Other
+        header('Location: ' . $redirect_url, true, 303);
+        die();
     }
 
     /**

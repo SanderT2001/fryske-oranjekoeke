@@ -32,6 +32,10 @@ if (!function_exists('get_app_class')) {
             case 'entity':
                 $type = 'Models\Entities';
                 break;
+
+            case 'partial':
+                $type = 'Partial';
+                break;
         }
         $path = strtr($path, [
             '$type' => $type,

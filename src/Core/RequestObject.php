@@ -2,6 +2,8 @@
 
 namespace FryskeOranjekoeke\Core;
 
+use sessionhelper\SessionHelper;
+
 /**
  * The Object containing all the information about a Request.
  *
@@ -49,6 +51,11 @@ class RequestObject
     protected $data = null;
 
     /**
+     * @var SessionHelper
+     */
+    protected $session = null;
+
+    /**
      * @param array $serverVars Must contain the following keys:
      *                          array(
      *                              'REQUEST_URI' => '/controller/action',
@@ -88,7 +95,8 @@ class RequestObject
         $this->setHeaders($headers);
 
         $this->setMethod($serverVars['REQUEST_METHOD'])
-             ->setIp($serverVars['REMOTE_ADDR']);
+             ->setIp($serverVars['REMOTE_ADDR'])
+             ->setSession(new SessionHelper());
 
         // Open in Read Mode.
         $requestDataFile = fopen('php://input', 'r');
@@ -98,8 +106,15 @@ class RequestObject
             $requestData .= $data;
         }
         fclose($requestDataFile);
+
         if (!empty($requestData)) {
-            $this->setData(json_decode($requestData));
+            $requestDataArray = json_decode($requestData);
+
+            if ($requestDataArray === null) // @var requestData isn't JSON, then probably Form Enclosed
+                // Transform Form Enclosed to Array
+                parse_str($requestData, $requestDataArray);
+
+            $this->setData((object) $requestDataArray);
         }
     }
 
@@ -163,6 +178,17 @@ class RequestObject
     public function setData(\stdClass $data): void
     {
         $this->data = $data;
+    }
+
+    public function getSession(): ?SessionHelper
+    {
+        return $this->session;
+    }
+
+    public function setSession(SessionHelper $session): self
+    {
+        $this->session = $session;
+        return $this;
     }
 
     /**

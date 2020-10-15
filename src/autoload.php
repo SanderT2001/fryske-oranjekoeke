@@ -42,6 +42,10 @@ spl_autoload_register(function(string $className): void
                         $classPath .= MODELS;
                         break;
 
+                    case 'Partial':
+                        $classPath .= PARTIAL;
+                        break;
+
                     default:
                         $classPath .= (DS . $directory);
                 }

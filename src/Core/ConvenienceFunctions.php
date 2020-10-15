@@ -205,7 +205,7 @@ if (!function_exists('underscore2camelcase')) {
     function underscore2camelcase(string $input, bool $capitalizeFirstChar = false): string
     {
         $str = str_replace('_', '', ucwords($input, '_'));
-        if ($capitalizeFirstCharacter === false)
+        if ($capitalizeFirstChar === false)
             $str = lcfirst($str);
 
         return $str;

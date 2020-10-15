@@ -109,7 +109,11 @@ class Table extends PDOHelper
         return $result;
     }
 
-    public function add($entity, $debug = 0): bool
+    /**
+     * @return bool false On failure
+     *         int        ID of the created record
+     */
+    public function add($entity, $debug = 0)
     {
         $saveData = $this->prepareSave($entity);
         if (empty($saveData))
