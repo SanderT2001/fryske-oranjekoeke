@@ -13,12 +13,13 @@ mkdir $projectname $projectname/app
 cd $projectname/app
 
 # Get Fryske-Oranjekoeke
-mkdir vendor vendor/sandert2001
-cd vendor/sandert2001
-git clone https://github.com/SanderT2001/fryske-oranjekoeke.git &> /dev/null
+composer install
+#mkdir vendor vendor/sandert2001
+#cd vendor/sandert2001
+#git clone https://github.com/SanderT2001/fryske-oranjekoeke.git &> /dev/null
 
 # Go back to the Project App Root.
-cd ../../
+#cd ../../
 
 # Setup the Skeleton
 cp -R ./vendor/sandert2001/fryske-oranjekoeke/app-skeleton/* ./
