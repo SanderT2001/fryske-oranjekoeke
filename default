@@ -12,8 +12,8 @@ server
 
     location /
     {
-        # If the request was made to a JS/CSS File, don't rewrite.
-        if ($request_uri ~* \.(?:css|js|map|jpe?g|png)$) {
+        # If the request was made to a asset File, don't rewrite.
+        if (-f $request_filename) {
             break;
         }
 
