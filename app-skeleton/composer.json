@@ -38,11 +38,25 @@
                     "reference": "master"
                 }
             }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "sandert2001/sessionhelper",
+                "version": "1.0.0",
+                "type": "sessionhelper",
+                "source": {
+                    "url": "https://github.com/SanderT2001/SessionHelper/",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
         }
     ],
     "require": {
         "sandert2001/fryske-oranjekoeke": "^0.0.3",
         "sandert2001/pdohelper": "^1",
-        "sandert2001/httphelper": "^1"
+        "sandert2001/httphelper": "^1",
+        "sandert2001/sessionhelper": "^1"
     }
 }
