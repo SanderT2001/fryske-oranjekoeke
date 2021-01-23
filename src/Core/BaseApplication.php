@@ -5,7 +5,7 @@ namespace FryskeOranjekoeke\Core;
 require_once 'ConvenienceFunctions.php';
 require_once 'MvcFunctions.php';
 require_once FRYSKE_ORANJEKOEKE . DS . 'autoload.php';
-require_once FRYSKE_ORANJEKOEKE . DS . 'exception_handler.php';
+//require_once FRYSKE_ORANJEKOEKE . DS . 'exception_handler.php';
 
 use FryskeOranjekoeke\Core\RequestObject;
 
@@ -50,6 +50,7 @@ class BaseApplication
                 return;
             }
         }
+
         // Call the Requested Action
         $returnValue = call_user_func_array([$this->getController(), $this->request->getDestination()['action']], $this->request->getDestination()['arguments'] ?? []);
 

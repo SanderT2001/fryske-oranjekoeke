@@ -9,106 +9,60 @@ namespace FryskeOranjekoeke\Response;
  */
 class ApiResponse
 {
-    protected $responseBodyStruct = [
-        'urn'     => null,
-        'method'  => null,
-        'success' => true,
-        'status'  => [
-            'code' => 200,
-            'msg'  => null
-        ],
-        /**
-         * Based on success or error:
-        'reason' => null,
-        'data' => []
-         */
-    ];
-
-    protected $statusMap = [
-        200 => 'Success',
-        201 => 'Created',
-        204 => 'No Content',
-        400 => 'Bad Request',
-        403 => 'Forbidden',
-        404 => 'Not Found',
-        405 => 'Method Not Allowed',
-        409 => 'Conflict',
-        429 => 'Too Many Requests'
-    ];
-
-    public function getStatus(int $statuscode): array
-    {
-        if (empty($this->statusMap[$statuscode]))
-            throw new \InvalidArgumentException('The given status code is invalid.');
-
-        return [
-            'code' => $statuscode,
-            'msg'  => $this->statusMap[$statuscode]
-        ];
-    }
-
-    public function getResponseBodyStruct(): object
-    {
-        return (object) $this->responseBodyStruct;
-    }
-
     public function success($data): string
     {
-        $response = $this->getBaseOutput(200);
-        $response->data = $data;
-
         $this->setHeaders(200);
-        return json_encode($response);
+        return json_encode($data);
     }
 
-    public function created(): string
+    public function created($data): string
     {
-        $response = $this->getBaseOutput(201);
-
         $this->setHeaders(201);
-        return json_encode($response);
+        return json_encode($data);
     }
 
-    public function updated(): string
+    public function updated($data): string
     {
-        $response = $this->getBaseOutput(204);
-
         $this->setHeaders(204);
-        return json_encode($response);
+        return json_encode($data);
     }
 
     public function removed(): string
     {
-        $response = $this->getBaseOutput(204);
-
         $this->setHeaders(204);
-        return json_encode($response);
+        return json_encode();
+    }
+
+    public function badRequest($errors = null): string
+    {
+        return $this->error(400, $errors);
+    }
+
+    public function notFound(): string
+    {
+        return $this->error(404);
+    }
+
+    public function methodNotAllowed(string $expectedMethod): string
+    {
+        $msg = 'Expected ' . strtoupper($expectedMethod);
+        return $this->error(405, $msg);
     }
 
     /**
      * @param mixed|null reason
      */
-    public function error(int $statuscode, $reason = null): string
+    public function error(int $statuscode, $errors = null): string
     {
-        $response = $this->getBaseOutput($statuscode);
-        if (!empty($reason))
-            $response->reason = $reason;
+        $response = [
+            'errors' => []
+        ];
+        if ($errors !== null) {
+            $response['errors'] = $errors;
+        }
 
         $this->setHeaders($statuscode);
         return json_encode($response);
-    }
-
-    protected function getBaseOutput(int $statuscode): object
-    {
-        $response = $this->getResponseBodyStruct();
-        $response->urn     = $_SERVER['REQUEST_URI'];
-        $response->success = $statuscode < 400;
-        $response->method  = $_SERVER['REQUEST_METHOD'];
-
-        $status_struct = $this->getStatus($statuscode);
-        $response->status['code'] = $status_struct['code'];
-        $response->status['msg'] = $status_struct['msg'];
-        return $response;
     }
 
     /**

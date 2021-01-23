@@ -44,9 +44,16 @@ class RequestObject
     protected $ip = null;
 
     /**
+     * The URL Query Params that have been send with this Request.
+     *
+     * @var stdClass|null
+     */
+    protected $queryParams = null;
+
+    /**
      * The POST/PUT data that has been send with this Request.
      *
-     * @var stdClass
+     * @var stdClass|null
      */
     protected $data = null;
 
@@ -66,7 +73,7 @@ class RequestObject
     public function __construct(array $serverVars, array $routes = [])
     {
         // Determine and set Request Destination.
-        $requestedPath = $serverVars['REQUEST_URI'];
+        $requestedPath = explode('?', $serverVars['REQUEST_URI'])[0]; // ? for query string split
         $indexPath     = $serverVars['PHP_SELF'];
 
         // index.php is the name of the file containing the Front Controller.
@@ -96,7 +103,8 @@ class RequestObject
 
         $this->setMethod($serverVars['REQUEST_METHOD'])
              ->setIp($serverVars['REMOTE_ADDR'])
-             ->setSession(new SessionHelper());
+             ->setSession(new SessionHelper())
+             ->setQueryParams((object) $_GET);
 
         // Open in Read Mode.
         $requestDataFile = fopen('php://input', 'r');
@@ -170,14 +178,26 @@ class RequestObject
         return $this;
     }
 
+    public function getQueryParams(): \stdClass
+    {
+        return ($this->queryParams instanceof \stdClass === true) ? $this->queryParams : new \stdClass();
+    }
+
+    public function setQueryParams(\stdClass $queryParams): self
+    {
+        $this->queryParams = $queryParams;
+        return $this;
+    }
+
     public function getData(): \stdClass
     {
         return ($this->data instanceof \stdClass === true) ? $this->data : new \stdClass();
     }
 
-    public function setData(\stdClass $data): void
+    public function setData(\stdClass $data): self
     {
         $this->data = $data;
+        return $this;
     }
 
     public function getSession(): ?SessionHelper
